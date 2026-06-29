@@ -237,7 +237,7 @@ int main() {
 - `musuwer`：柴承源 / Chai
 - `kokomily`：刘健松 / Liu
 - `git-li-hub`：李嘉杰 / Li
-- `待补充`：第四位成员
+- `zz-zz823`：张周伟 / Zhou
 
 ---
 
