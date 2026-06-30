@@ -1,6 +1,11 @@
 #include "microcc.h"
 
 // ----------------------------- lexer -----------------------------
+// Day2 update:
+//   1. Each token records line, column and length.
+//   2. Lexical errors use unified diagnostics: lex error line X col Y: ...
+//   3. Illegal characters, malformed floating literals and unclosed block
+//      comments are detected before the parser runs.
 
 TokenVec tokens;
 int pos = 0;
@@ -13,6 +18,16 @@ static void token_push(Token t) {
         if (!tokens.data) die("out of memory");
     }
     tokens.data[tokens.len++] = t;
+}
+
+static void lex_error_at(int line, int col, const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    fprintf(stderr, "lex error line %d col %d: ", line, col);
+    vfprintf(stderr, fmt, ap);
+    fprintf(stderr, "\n");
+    va_end(ap);
+    lex_errors++;
 }
 
 const char *token_kind_name(int kind) {
@@ -54,6 +69,16 @@ static int keyword_kind(const char *s) {
     return TK_IDENT;
 }
 
+static Token make_token(int kind, const char *start, int len, int line, int col) {
+    Token t = {0};
+    t.kind = kind;
+    t.lexeme = xstrndup(start, (size_t)len);
+    t.line = line;
+    t.col = col;
+    t.len = len;
+    return t;
+}
+
 void lex(const char *src) {
     int line = 1, col = 1;
     const char *p = src;
@@ -61,15 +86,17 @@ void lex(const char *src) {
         if (*p == ' ' || *p == '\t' || *p == '\r') { p++; col++; continue; }
         if (*p == '\n') { p++; line++; col = 1; continue; }
 
-        // Single-line comment
+        // Single-line comment: skip until newline, but keep newline for line count.
         if (p[0] == '/' && p[1] == '/') {
             p += 2; col += 2;
             while (*p && *p != '\n') { p++; col++; }
             continue;
         }
 
-        // Multi-line comment
+        // Multi-line comment: track the opening position for clear diagnostics.
         if (p[0] == '/' && p[1] == '*') {
+            int start_line = line;
+            int start_col = col;
             p += 2; col += 2;
             bool closed = false;
             while (*p) {
@@ -77,24 +104,17 @@ void lex(const char *src) {
                 if (*p == '\n') { p++; line++; col = 1; }
                 else { p++; col++; }
             }
-            if (!closed) {
-                fprintf(stderr, "lex error: unclosed block comment at line %d\n", line);
-                lex_errors++;
-            }
+            if (!closed) lex_error_at(start_line, start_col, "unclosed block comment");
             continue;
         }
-
-        Token t = {0};
-        t.line = line;
-        t.col = col;
 
         if (isalpha((unsigned char)*p) || *p == '_') {
             const char *start = p;
             int start_col = col;
             while (isalnum((unsigned char)*p) || *p == '_') { p++; col++; }
-            t.lexeme = xstrndup(start, (size_t)(p - start));
+            int len = (int)(p - start);
+            Token t = make_token(TK_IDENT, start, len, line, start_col);
             t.kind = keyword_kind(t.lexeme);
-            t.col = start_col;
             token_push(t);
             continue;
         }
@@ -109,9 +129,15 @@ void lex(const char *src) {
                 p++; col++;
                 while (isdigit((unsigned char)*p)) { p++; col++; }
             }
-            t.lexeme = xstrndup(start, (size_t)(p - start));
-            t.kind = is_float ? TK_FLOAT_LITERAL : TK_INT_LITERAL;
-            t.col = start_col;
+            if (*p == '.') {
+                const char *bad_start = start;
+                int bad_col = start_col;
+                while (isdigit((unsigned char)*p) || *p == '.') { p++; col++; }
+                lex_error_at(line, bad_col, "malformed floating literal '%.*s'", (int)(p - bad_start), bad_start);
+                continue;
+            }
+            int len = (int)(p - start);
+            Token t = make_token(is_float ? TK_FLOAT_LITERAL : TK_INT_LITERAL, start, len, line, start_col);
             if (is_float) t.fval = strtod(t.lexeme, NULL);
             else t.ival = strtol(t.lexeme, NULL, 10);
             token_push(t);
@@ -119,7 +145,7 @@ void lex(const char *src) {
         }
 
         #define TWO(a,b,k) if (p[0] == (a) && p[1] == (b)) { \
-            t.kind = (k); t.lexeme = xstrndup(p, 2); token_push(t); p += 2; col += 2; continue; }
+            Token t = make_token((k), p, 2, line, col); token_push(t); p += 2; col += 2; continue; }
         TWO('=', '=', TK_EQ)
         TWO('!', '=', TK_NE)
         TWO('<', '=', TK_LE)
@@ -130,18 +156,16 @@ void lex(const char *src) {
 
         const char *single = "+-*/%(){};=<>!,";
         if (strchr(single, *p)) {
-            t.kind = (unsigned char)*p;
-            t.lexeme = xstrndup(p, 1);
+            Token t = make_token((unsigned char)*p, p, 1, line, col);
             token_push(t);
             p++; col++;
             continue;
         }
 
-        fprintf(stderr, "lex error: unknown character '%c' at %d:%d\n", *p, line, col);
-        lex_errors++;
+        lex_error_at(line, col, "unexpected character '%c'", *p);
         p++; col++;
     }
-    Token eof = { .kind = TK_EOF, .lexeme = xstrdup(""), .line = line, .col = col };
+    Token eof = { .kind = TK_EOF, .lexeme = xstrdup(""), .line = line, .col = col, .len = 0 };
     token_push(eof);
 }
 
@@ -154,7 +178,7 @@ void dump_tokens_json(const char *path) {
         json_escape(fp, token_kind_name(t->kind));
         fprintf(fp, ", \"lexeme\":");
         json_escape(fp, t->lexeme);
-        fprintf(fp, ", \"line\":%d, \"col\":%d", t->line, t->col);
+        fprintf(fp, ", \"line\":%d, \"col\":%d, \"length\":%d", t->line, t->col, t->len);
         if (t->kind == TK_INT_LITERAL) fprintf(fp, ", \"value\":%ld", t->ival);
         if (t->kind == TK_FLOAT_LITERAL) fprintf(fp, ", \"value\":%g", t->fval);
         fprintf(fp, "}%s\n", i == tokens.len - 1 ? "" : ",");
