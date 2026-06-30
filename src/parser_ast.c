@@ -12,13 +12,18 @@ const char *type_name(Type t) {
 
 int parse_errors = 0;
 
-static Node *new_node(NodeKind kind, int line) {
+static Node *new_node_at(NodeKind kind, int line, int col) {
     Node *n = (Node *)xmalloc(sizeof(Node));
     n->kind = kind;
     n->line = line;
+    n->col = col;
     n->type = TY_UNKNOWN;
     n->slot = -1;
     return n;
+}
+
+static Node *new_node(NodeKind kind, int line) {
+    return new_node_at(kind, line, 0);
 }
 
 static void node_add(Node *block, Node *child) {
@@ -86,19 +91,19 @@ static Node *parse_expr(void);
 static Node *parse_primary(void) {
     Token *t = peek();
     if (match(TK_INT_LITERAL)) {
-        Node *n = new_node(ND_INT, t->line);
+        Node *n = new_node_at(ND_INT, t->line, t->col);
         n->ival = t->ival;
         n->type = TY_INT;
         return n;
     }
     if (match(TK_FLOAT_LITERAL)) {
-        Node *n = new_node(ND_FLOAT, t->line);
+        Node *n = new_node_at(ND_FLOAT, t->line, t->col);
         n->fval = t->fval;
         n->type = TY_FLOAT;
         return n;
     }
     if (match(TK_IDENT)) {
-        Node *n = new_node(ND_VAR, t->line);
+        Node *n = new_node_at(ND_VAR, t->line, t->col);
         n->name = xstrdup(t->lexeme);
         return n;
     }
@@ -111,19 +116,21 @@ static Node *parse_primary(void) {
             t->line, t->col, token_kind_name(t->kind), t->lexeme);
     parse_errors++;
     pos++;
-    return new_node(ND_INT, t->line);
+    return new_node_at(ND_INT, t->line, t->col);
 }
 
 static Node *parse_unary(void) {
     if (match('+')) return parse_unary();
     if (match('-')) {
-        Node *n = new_node(ND_UNARY, prev()->line);
+        Token *op = prev();
+        Node *n = new_node_at(ND_UNARY, op->line, op->col);
         strcpy(n->op, "-");
         n->rhs = parse_unary();
         return n;
     }
     if (match('!')) {
-        Node *n = new_node(ND_UNARY, prev()->line);
+        Token *op = prev();
+        Node *n = new_node_at(ND_UNARY, op->line, op->col);
         strcpy(n->op, "!");
         n->rhs = parse_unary();
         return n;
@@ -206,7 +213,7 @@ static Node *parse_expr(void) { return parse_assignment(); }
 static Node *parse_decl(bool need_semicolon) {
     Type ty = parse_type();
     Token *name = expect(TK_IDENT, "identifier");
-    Node *n = new_node(ND_DECL, name->line);
+    Node *n = new_node_at(ND_DECL, name->line, name->col);
     n->type = ty;
     n->name = xstrdup(name->lexeme);
     if (match('=')) n->rhs = parse_expr();
@@ -216,7 +223,7 @@ static Node *parse_decl(bool need_semicolon) {
 
 static Node *parse_block(void) {
     Token *open = expect('{', "'{' ");
-    Node *block = new_node(ND_BLOCK, open->line);
+    Node *block = new_node_at(ND_BLOCK, open->line, open->col);
     while (!at_eof() && !match('}')) {
         if (is_type_keyword(peek()->kind)) node_add(block, parse_decl(true));
         else node_add(block, parse_stmt());
@@ -229,14 +236,14 @@ static Node *parse_stmt(void) {
     if (peek()->kind == '{') return parse_block();
 
     if (match(TK_KW_RETURN)) {
-        Node *n = new_node(ND_RETURN, t->line);
+        Node *n = new_node_at(ND_RETURN, t->line, t->col);
         n->rhs = parse_expr();
         expect(';', "';'");
         return n;
     }
 
     if (match(TK_KW_IF)) {
-        Node *n = new_node(ND_IF, t->line);
+        Node *n = new_node_at(ND_IF, t->line, t->col);
         expect('(', "'('");
         n->cond = parse_expr();
         expect(')', "')'");
@@ -246,7 +253,7 @@ static Node *parse_stmt(void) {
     }
 
     if (match(TK_KW_WHILE)) {
-        Node *n = new_node(ND_WHILE, t->line);
+        Node *n = new_node_at(ND_WHILE, t->line, t->col);
         expect('(', "'('");
         n->cond = parse_expr();
         expect(')', "')'");
@@ -255,14 +262,14 @@ static Node *parse_stmt(void) {
     }
 
     if (match(TK_KW_FOR)) {
-        Node *n = new_node(ND_FOR, t->line);
+        Node *n = new_node_at(ND_FOR, t->line, t->col);
         expect('(', "'('");
         if (match(';')) {
             n->init = NULL;
         } else if (is_type_keyword(peek()->kind)) {
             n->init = parse_decl(true);
         } else {
-            n->init = new_node(ND_EXPR_STMT, peek()->line);
+            n->init = new_node_at(ND_EXPR_STMT, peek()->line, peek()->col);
             n->init->rhs = parse_expr();
             expect(';', "';'");
         }
@@ -278,21 +285,21 @@ static Node *parse_stmt(void) {
         return n;
     }
 
-    if (match(';')) return new_node(ND_EMPTY, t->line);
+    if (match(';')) return new_node_at(ND_EMPTY, t->line, t->col);
 
-    Node *n = new_node(ND_EXPR_STMT, t->line);
+    Node *n = new_node_at(ND_EXPR_STMT, t->line, t->col);
     n->rhs = parse_expr();
     expect(';', "';'");
     return n;
 }
 
 Node *parse_program(void) {
-    Node *prog = new_node(ND_PROGRAM, 1);
+    Node *prog = new_node_at(ND_PROGRAM, 1, 1);
     Type ret = parse_type();
     Token *name = expect(TK_IDENT, "function name");
     expect('(', "'('");
     expect(')', "')'");
-    Node *fn = new_node(ND_FUNC, name->line);
+    Node *fn = new_node_at(ND_FUNC, name->line, name->col);
     fn->type = ret;
     fn->name = xstrdup(name->lexeme);
     fn->body = parse_block();
@@ -310,7 +317,7 @@ static void dump_ast_node(FILE *fp, Node *n, int ind) {
     fprintf(fp, "{\n");
     indent(fp, ind + 2); fprintf(fp, "\"kind\":"); json_escape(fp, node_kind_name(n->kind));
     fprintf(fp, ",\n");
-    indent(fp, ind + 2); fprintf(fp, "\"line\":%d", n->line);
+    indent(fp, ind + 2); fprintf(fp, "\"line\":%d, \"col\":%d", n->line, n->col);
     if (n->name) { fprintf(fp, ",\n"); indent(fp, ind + 2); fprintf(fp, "\"name\":"); json_escape(fp, n->name); }
     if (n->op[0]) { fprintf(fp, ",\n"); indent(fp, ind + 2); fprintf(fp, "\"op\":"); json_escape(fp, n->op); }
     if (n->kind == ND_INT) { fprintf(fp, ",\n"); indent(fp, ind + 2); fprintf(fp, "\"value\":%ld", n->ival); }
