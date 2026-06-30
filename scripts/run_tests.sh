@@ -69,6 +69,23 @@ else
   fail=$((fail + 1))
 fi
 
+./build/microcc examples/lexer_full_demo.mc --dump-tokens build/test_lexer_full_tokens.json --dump-ast build/test_lexer_full_ast.json > /dev/null
+if grep -q "KW_FLOAT" build/test_lexer_full_tokens.json \
+   && grep -q "FLOAT_LITERAL" build/test_lexer_full_tokens.json \
+   && grep -q "&&" build/test_lexer_full_tokens.json \
+   && grep -q "||" build/test_lexer_full_tokens.json \
+   && grep -q "\"length\"" build/test_lexer_full_tokens.json \
+   && grep -q "\"line\"" build/test_lexer_full_ast.json; then
+  echo "[PASS] lexer full coverage and AST line mapping"
+  pass=$((pass + 1))
+else
+  echo "[FAIL] lexer full coverage and AST line mapping"
+  fail=$((fail + 1))
+fi
+
+run_error "malformed float literal" examples/lex_error_bad_float.mc "malformed floating literal"
+run_error "unclosed block comment" examples/lex_error_unclosed_comment.mc "unclosed block comment"
+
 run_error "undeclared variable" examples/semantic_error_demo.mc "undeclared variable"
 run_error "duplicate declaration" examples/duplicate_error_demo.mc "duplicate declaration"
 run_error "type checking" examples/type_error_demo.mc "cannot assign float"
