@@ -105,6 +105,7 @@ typedef struct {
     double fval;
     int line;
     int col;
+    int len;
 } Token;
 
 typedef struct {
@@ -150,6 +151,7 @@ typedef struct Node Node;
 struct Node {
     NodeKind kind;
     int line;
+    int col;
     Type type;
     char *name;
     char op[4];
