@@ -1,6 +1,10 @@
 #include "microcc.h"
 
 // ----------------------------- semantic analysis -----------------------------
+// Day2 note: examples/lexer_full_demo.mc is a full lexer coverage program.
+// The semantic analyzer accepts it as normal MiniC source, proving that tokens
+// produced from comments, integer/float literals and logical operators can flow
+// through parsing and semantic checking without breaking the compiler pipeline.
 
 typedef struct {
     char *name;
