@@ -5,6 +5,12 @@
 // The semantic analyzer accepts it as normal MiniC source, proving that tokens
 // produced from comments, integer/float literals and logical operators can flow
 // through parsing and semantic checking without breaking the compiler pipeline.
+//
+// Day3 update:
+//   infer_expr_type(Node *n) is exposed as the expression type inference entry.
+//   Statement checking still uses analyze(Node *n), while conditions,
+//   assignments and expression statements call infer_expr_type() explicitly.
+//   This keeps the semantic module ready for later int/float checking work.
 
 typedef struct {
     char *name;
@@ -52,7 +58,79 @@ static void leave_scope(void) {
 }
 
 static bool is_numeric(Type t) { return t == TY_INT || t == TY_FLOAT; }
+
+static bool is_comparison_or_logic_op(const char *op) {
+    return !strcmp(op, "<") || !strcmp(op, ">") || !strcmp(op, "<=") || !strcmp(op, ">=") ||
+           !strcmp(op, "==") || !strcmp(op, "!=") || !strcmp(op, "&&") || !strcmp(op, "||");
+}
+
 Type analyze(Node *n);
+
+Type infer_expr_type(Node *n) {
+    if (!n) return TY_UNKNOWN;
+
+    switch (n->kind) {
+        case ND_ASSIGN: {
+            if (!n->lhs || n->lhs->kind != ND_VAR) {
+                fprintf(stderr, "semantic error line %d: left side of assignment must be a variable\n", n->line);
+                sem_errors++;
+                n->type = TY_UNKNOWN;
+                return n->type;
+            }
+            Type lhs = infer_expr_type(n->lhs);
+            Type rhs = infer_expr_type(n->rhs);
+            n->type = lhs;
+            n->slot = n->lhs->slot;
+            if (lhs == TY_INT && rhs == TY_FLOAT) {
+                fprintf(stderr, "semantic error line %d: cannot assign float expression to int variable '%s'\n", n->line, n->lhs->name);
+                sem_errors++;
+            }
+            return n->type;
+        }
+        case ND_BINARY: {
+            Type a = infer_expr_type(n->lhs);
+            Type b = infer_expr_type(n->rhs);
+            if (!is_numeric(a) || !is_numeric(b)) {
+                fprintf(stderr, "semantic error line %d: binary operator '%s' expects numeric operands\n", n->line, n->op);
+                sem_errors++;
+            }
+            if (is_comparison_or_logic_op(n->op))
+                n->type = TY_INT;
+            else
+                n->type = (a == TY_FLOAT || b == TY_FLOAT) ? TY_FLOAT : TY_INT;
+            return n->type;
+        }
+        case ND_UNARY: {
+            Type rhs = infer_expr_type(n->rhs);
+            n->type = !strcmp(n->op, "!") ? TY_INT : rhs;
+            if (!is_numeric(rhs)) {
+                fprintf(stderr, "semantic error line %d: unary operator '%s' expects numeric operand\n", n->line, n->op);
+                sem_errors++;
+            }
+            return n->type;
+        }
+        case ND_INT:
+            n->type = TY_INT;
+            return n->type;
+        case ND_FLOAT:
+            n->type = TY_FLOAT;
+            return n->type;
+        case ND_VAR: {
+            Symbol *s = find_symbol(n->name);
+            if (!s) {
+                fprintf(stderr, "semantic error line %d: undeclared variable '%s'\n", n->line, n->name);
+                sem_errors++;
+                n->type = TY_UNKNOWN;
+                return n->type;
+            }
+            n->type = s->type;
+            n->slot = s->slot;
+            return n->type;
+        }
+        default:
+            return TY_UNKNOWN;
+    }
+}
 
 static Type analyze_block(Node *n) {
     active_depth++;
@@ -86,7 +164,7 @@ Type analyze(Node *n) {
                 n->slot = s->slot;
             }
             if (n->rhs) {
-                Type rhs = analyze(n->rhs);
+                Type rhs = infer_expr_type(n->rhs);
                 if (n->type == TY_INT && rhs == TY_FLOAT) {
                     fprintf(stderr, "semantic error line %d: cannot assign float expression to int variable '%s'\n", n->line, n->name);
                     sem_errors++;
@@ -95,9 +173,9 @@ Type analyze(Node *n) {
             return n->type;
         }
         case ND_RETURN:
-            return analyze(n->rhs);
+            return infer_expr_type(n->rhs);
         case ND_IF:
-            if (!is_numeric(analyze(n->cond))) {
+            if (!is_numeric(infer_expr_type(n->cond))) {
                 fprintf(stderr, "semantic error line %d: if condition must be numeric\n", n->line);
                 sem_errors++;
             }
@@ -105,7 +183,7 @@ Type analyze(Node *n) {
             if (n->else_branch) analyze(n->else_branch);
             return TY_UNKNOWN;
         case ND_WHILE:
-            if (!is_numeric(analyze(n->cond))) {
+            if (!is_numeric(infer_expr_type(n->cond))) {
                 fprintf(stderr, "semantic error line %d: while condition must be numeric\n", n->line);
                 sem_errors++;
             }
@@ -114,68 +192,23 @@ Type analyze(Node *n) {
         case ND_FOR:
             active_depth++;
             if (n->init) analyze(n->init);
-            if (n->cond && !is_numeric(analyze(n->cond))) {
+            if (n->cond && !is_numeric(infer_expr_type(n->cond))) {
                 fprintf(stderr, "semantic error line %d: for condition must be numeric\n", n->line);
                 sem_errors++;
             }
-            if (n->inc) analyze(n->inc);
+            if (n->inc) infer_expr_type(n->inc);
             analyze(n->body);
             leave_scope();
             return TY_UNKNOWN;
         case ND_EXPR_STMT:
-            return n->rhs ? analyze(n->rhs) : TY_UNKNOWN;
-        case ND_ASSIGN: {
-            if (!n->lhs || n->lhs->kind != ND_VAR) {
-                fprintf(stderr, "semantic error line %d: left side of assignment must be a variable\n", n->line);
-                sem_errors++;
-                return TY_UNKNOWN;
-            }
-            Type lhs = analyze(n->lhs);
-            Type rhs = analyze(n->rhs);
-            n->type = lhs;
-            n->slot = n->lhs->slot;
-            if (lhs == TY_INT && rhs == TY_FLOAT) {
-                fprintf(stderr, "semantic error line %d: cannot assign float expression to int variable '%s'\n", n->line, n->lhs->name);
-                sem_errors++;
-            }
-            return n->type;
-        }
-        case ND_BINARY: {
-            Type a = analyze(n->lhs);
-            Type b = analyze(n->rhs);
-            if (!is_numeric(a) || !is_numeric(b)) {
-                fprintf(stderr, "semantic error line %d: binary operator '%s' expects numeric operands\n", n->line, n->op);
-                sem_errors++;
-            }
-            if (!strcmp(n->op, "<") || !strcmp(n->op, ">") || !strcmp(n->op, "<=") || !strcmp(n->op, ">=") ||
-                !strcmp(n->op, "==") || !strcmp(n->op, "!=") || !strcmp(n->op, "&&") || !strcmp(n->op, "||"))
-                n->type = TY_INT;
-            else
-                n->type = (a == TY_FLOAT || b == TY_FLOAT) ? TY_FLOAT : TY_INT;
-            return n->type;
-        }
+            return n->rhs ? infer_expr_type(n->rhs) : TY_UNKNOWN;
+        case ND_ASSIGN:
+        case ND_BINARY:
         case ND_UNARY:
-            n->type = analyze(n->rhs);
-            if (!strcmp(n->op, "!")) n->type = TY_INT;
-            return n->type;
         case ND_INT:
-            n->type = TY_INT;
-            return n->type;
         case ND_FLOAT:
-            n->type = TY_FLOAT;
-            return n->type;
-        case ND_VAR: {
-            Symbol *s = find_symbol(n->name);
-            if (!s) {
-                fprintf(stderr, "semantic error line %d: undeclared variable '%s'\n", n->line, n->name);
-                sem_errors++;
-                n->type = TY_UNKNOWN;
-                return n->type;
-            }
-            n->type = s->type;
-            n->slot = s->slot;
-            return n->type;
-        }
+        case ND_VAR:
+            return infer_expr_type(n);
         case ND_EMPTY:
             return TY_UNKNOWN;
     }
@@ -194,4 +227,3 @@ void dump_symbols_json(const char *path) {
     fprintf(fp, "]\n");
     fclose(fp);
 }
-

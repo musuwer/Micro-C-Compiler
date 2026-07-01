@@ -180,6 +180,7 @@ void dump_ast_json(const char *path, Node *root);
 // Semantic analysis
 // -----------------------------------------------------------------------------
 extern int sem_errors;
+Type infer_expr_type(Node *n);
 Type analyze(Node *n);
 void dump_symbols_json(const char *path);
 
