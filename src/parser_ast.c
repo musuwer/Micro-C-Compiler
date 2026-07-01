@@ -22,9 +22,6 @@ static Node *new_node_at(NodeKind kind, int line, int col) {
     return n;
 }
 
-static Node *new_node(NodeKind kind, int line) {
-    return new_node_at(kind, line, 0);
-}
 
 static void node_add(Node *block, Node *child) {
     if (block->len == block->cap) {
@@ -138,69 +135,113 @@ static Node *parse_unary(void) {
     return parse_primary();
 }
 
-static Node *new_binary(const char *op, Node *lhs, Node *rhs, int line) {
-    Node *n = new_node(ND_BINARY, line);
+// Day3 parser update:
+//   Expression parsing is now written as a clear precedence ladder.
+//   From high to low: unary -> multiplicative -> additive -> relational
+//   -> equality -> logical_and -> logical_or -> assignment.
+//   Binary and assignment nodes also record the operator token position,
+//   which makes AST JSON easier to explain and later easier to visualize.
+static Node *new_binary_at(const char *op, Node *lhs, Node *rhs, int line, int col) {
+    Node *n = new_node_at(ND_BINARY, line, col);
     strncpy(n->op, op, sizeof(n->op) - 1);
+    n->op[sizeof(n->op) - 1] = '\0';
     n->lhs = lhs;
     n->rhs = rhs;
     return n;
 }
 
-static Node *parse_mul(void) {
+static Node *parse_multiplicative(void) {
     Node *node = parse_unary();
     for (;;) {
-        if (match('*')) node = new_binary("*", node, parse_unary(), prev()->line);
-        else if (match('/')) node = new_binary("/", node, parse_unary(), prev()->line);
-        else if (match('%')) node = new_binary("%", node, parse_unary(), prev()->line);
-        else return node;
+        if (match('*')) {
+            Token *op = prev();
+            node = new_binary_at("*", node, parse_unary(), op->line, op->col);
+        } else if (match('/')) {
+            Token *op = prev();
+            node = new_binary_at("/", node, parse_unary(), op->line, op->col);
+        } else if (match('%')) {
+            Token *op = prev();
+            node = new_binary_at("%", node, parse_unary(), op->line, op->col);
+        } else {
+            return node;
+        }
     }
 }
 
-static Node *parse_add(void) {
-    Node *node = parse_mul();
+static Node *parse_additive(void) {
+    Node *node = parse_multiplicative();
     for (;;) {
-        if (match('+')) node = new_binary("+", node, parse_mul(), prev()->line);
-        else if (match('-')) node = new_binary("-", node, parse_mul(), prev()->line);
-        else return node;
+        if (match('+')) {
+            Token *op = prev();
+            node = new_binary_at("+", node, parse_multiplicative(), op->line, op->col);
+        } else if (match('-')) {
+            Token *op = prev();
+            node = new_binary_at("-", node, parse_multiplicative(), op->line, op->col);
+        } else {
+            return node;
+        }
     }
 }
 
 static Node *parse_relational(void) {
-    Node *node = parse_add();
+    Node *node = parse_additive();
     for (;;) {
-        if (match('<')) node = new_binary("<", node, parse_add(), prev()->line);
-        else if (match('>')) node = new_binary(">", node, parse_add(), prev()->line);
-        else if (match(TK_LE)) node = new_binary("<=", node, parse_add(), prev()->line);
-        else if (match(TK_GE)) node = new_binary(">=", node, parse_add(), prev()->line);
-        else return node;
+        if (match('<')) {
+            Token *op = prev();
+            node = new_binary_at("<", node, parse_additive(), op->line, op->col);
+        } else if (match('>')) {
+            Token *op = prev();
+            node = new_binary_at(">", node, parse_additive(), op->line, op->col);
+        } else if (match(TK_LE)) {
+            Token *op = prev();
+            node = new_binary_at("<=", node, parse_additive(), op->line, op->col);
+        } else if (match(TK_GE)) {
+            Token *op = prev();
+            node = new_binary_at(">=", node, parse_additive(), op->line, op->col);
+        } else {
+            return node;
+        }
     }
 }
 
 static Node *parse_equality(void) {
     Node *node = parse_relational();
     for (;;) {
-        if (match(TK_EQ)) node = new_binary("==", node, parse_relational(), prev()->line);
-        else if (match(TK_NE)) node = new_binary("!=", node, parse_relational(), prev()->line);
-        else return node;
+        if (match(TK_EQ)) {
+            Token *op = prev();
+            node = new_binary_at("==", node, parse_relational(), op->line, op->col);
+        } else if (match(TK_NE)) {
+            Token *op = prev();
+            node = new_binary_at("!=", node, parse_relational(), op->line, op->col);
+        } else {
+            return node;
+        }
     }
 }
 
 static Node *parse_logical_and(void) {
     Node *node = parse_equality();
-    while (match(TK_AND)) node = new_binary("&&", node, parse_equality(), prev()->line);
+    while (match(TK_AND)) {
+        Token *op = prev();
+        node = new_binary_at("&&", node, parse_equality(), op->line, op->col);
+    }
     return node;
 }
 
 static Node *parse_logical_or(void) {
     Node *node = parse_logical_and();
-    while (match(TK_OR)) node = new_binary("||", node, parse_logical_and(), prev()->line);
+    while (match(TK_OR)) {
+        Token *op = prev();
+        node = new_binary_at("||", node, parse_logical_and(), op->line, op->col);
+    }
     return node;
 }
 
 static Node *parse_assignment(void) {
     Node *node = parse_logical_or();
     if (match('=')) {
-        Node *n = new_node(ND_ASSIGN, prev()->line);
+        Token *op = prev();
+        Node *n = new_node_at(ND_ASSIGN, op->line, op->col);
         n->lhs = node;
         n->rhs = parse_assignment();
         return n;
