@@ -6,6 +6,10 @@
 //   2. Lexical errors use unified diagnostics: lex error line X col Y: ...
 //   3. Illegal characters, malformed floating literals and unclosed block
 //      comments are detected before the parser runs.
+// Day3 update:
+//   1. Centralize logical/comparison operator recognition.
+//   2. Ensure &&, ||, !, ==, !=, <= and >= all appear as explicit tokens
+//      for expression-precedence parser tests.
 
 TokenVec tokens;
 int pos = 0;
@@ -79,6 +83,20 @@ static Token make_token(int kind, const char *start, int len, int line, int col)
     return t;
 }
 
+static int two_char_operator_kind(char a, char b) {
+    if (a == '=' && b == '=') return TK_EQ;
+    if (a == '!' && b == '=') return TK_NE;
+    if (a == '<' && b == '=') return TK_LE;
+    if (a == '>' && b == '=') return TK_GE;
+    if (a == '&' && b == '&') return TK_AND;
+    if (a == '|' && b == '|') return TK_OR;
+    return 0;
+}
+
+static bool is_single_char_token(char c) {
+    return strchr("+-*/%(){};=<>!,", c) != NULL;
+}
+
 void lex(const char *src) {
     int line = 1, col = 1;
     const char *p = src;
@@ -144,21 +162,20 @@ void lex(const char *src) {
             continue;
         }
 
-        #define TWO(a,b,k) if (p[0] == (a) && p[1] == (b)) { \
-            Token t = make_token((k), p, 2, line, col); token_push(t); p += 2; col += 2; continue; }
-        TWO('=', '=', TK_EQ)
-        TWO('!', '=', TK_NE)
-        TWO('<', '=', TK_LE)
-        TWO('>', '=', TK_GE)
-        TWO('&', '&', TK_AND)
-        TWO('|', '|', TK_OR)
-        #undef TWO
+        int two_kind = two_char_operator_kind(p[0], p[1]);
+        if (two_kind) {
+            Token t = make_token(two_kind, p, 2, line, col);
+            token_push(t);
+            p += 2;
+            col += 2;
+            continue;
+        }
 
-        const char *single = "+-*/%(){};=<>!,";
-        if (strchr(single, *p)) {
+        if (is_single_char_token(*p)) {
             Token t = make_token((unsigned char)*p, p, 1, line, col);
             token_push(t);
-            p++; col++;
+            p++;
+            col++;
             continue;
         }
 
