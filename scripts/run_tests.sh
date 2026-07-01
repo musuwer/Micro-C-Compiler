@@ -45,6 +45,7 @@ run_ok "basic control flow" examples/basic_demo.mc 13
 run_ok "for loop" examples/for_demo.mc 10
 run_ok "scope shadowing" examples/scope_demo.mc 8
 run_ok "comments and logical expressions" examples/comment_logic_demo.mc 22
+run_ok "expression precedence" examples/expression_demo.mc 16
 
 ./build/microcc examples/basic_demo.mc \
   --dump-tokens build/test_tokens.json \
@@ -80,6 +81,21 @@ if grep -q "KW_FLOAT" build/test_lexer_full_tokens.json \
   pass=$((pass + 1))
 else
   echo "[FAIL] lexer full coverage and AST line mapping"
+  fail=$((fail + 1))
+fi
+
+./build/microcc examples/expression_demo.mc --dump-tokens build/test_expression_tokens.json --dump-ast build/test_expression_ast.json > /dev/null
+if grep -q "==" build/test_expression_tokens.json \
+   && grep -q "!" build/test_expression_tokens.json \
+   && grep -q "<=\|>=\|<\|>" build/test_expression_tokens.json \
+   && grep -q "\"op\":\"*\"" build/test_expression_ast.json \
+   && grep -q "\"op\":\"+\"" build/test_expression_ast.json \
+   && grep -q "\"op\":\"&&\"" build/test_expression_ast.json \
+   && grep -q "\"op\":\"||\"" build/test_expression_ast.json; then
+  echo "[PASS] expression token and AST precedence coverage"
+  pass=$((pass + 1))
+else
+  echo "[FAIL] expression token and AST precedence coverage"
   fail=$((fail + 1))
 fi
 
