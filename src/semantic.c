@@ -27,6 +27,14 @@ static int active_depth = 0;
 static int next_slot = 0;
 int sem_errors = 0;
 
+// Day4 semantic update:
+//   Control-flow conditions are checked through check_condition().  While the
+//   ordinary expression inference logic is reused, this context string lets
+//   diagnostics say whether an undeclared variable appears inside an if, while
+//   or for condition.  It is intentionally small and local to this module so
+//   later Day5/Day6 type-checking work can reuse the same inference entry.
+static const char *condition_context = NULL;
+
 static Symbol *find_symbol(const char *name) {
     for (int i = sym_count - 1; i >= 0; i--)
         if (syms[i].active && !strcmp(syms[i].name, name)) return &syms[i];
@@ -118,7 +126,12 @@ Type infer_expr_type(Node *n) {
         case ND_VAR: {
             Symbol *s = find_symbol(n->name);
             if (!s) {
-                fprintf(stderr, "semantic error line %d: undeclared variable '%s'\n", n->line, n->name);
+                if (condition_context) {
+                    fprintf(stderr, "semantic error line %d: undeclared variable '%s' in %s condition\n",
+                            n->line, n->name, condition_context);
+                } else {
+                    fprintf(stderr, "semantic error line %d: undeclared variable '%s'\n", n->line, n->name);
+                }
                 sem_errors++;
                 n->type = TY_UNKNOWN;
                 return n->type;
@@ -138,6 +151,19 @@ static Type analyze_block(Node *n) {
     leave_scope();
     n->type = TY_UNKNOWN;
     return n->type;
+}
+
+static Type check_condition(Node *cond, Node *owner, const char *kind) {
+    const char *old_context = condition_context;
+    condition_context = kind;
+    Type ty = infer_expr_type(cond);
+    condition_context = old_context;
+
+    if (!is_numeric(ty)) {
+        fprintf(stderr, "semantic error line %d: %s condition must be numeric\n", owner->line, kind);
+        sem_errors++;
+    }
+    return ty;
 }
 
 Type analyze(Node *n) {
@@ -175,27 +201,18 @@ Type analyze(Node *n) {
         case ND_RETURN:
             return infer_expr_type(n->rhs);
         case ND_IF:
-            if (!is_numeric(infer_expr_type(n->cond))) {
-                fprintf(stderr, "semantic error line %d: if condition must be numeric\n", n->line);
-                sem_errors++;
-            }
+            check_condition(n->cond, n, "if");
             analyze(n->then_branch);
             if (n->else_branch) analyze(n->else_branch);
             return TY_UNKNOWN;
         case ND_WHILE:
-            if (!is_numeric(infer_expr_type(n->cond))) {
-                fprintf(stderr, "semantic error line %d: while condition must be numeric\n", n->line);
-                sem_errors++;
-            }
+            check_condition(n->cond, n, "while");
             analyze(n->body);
             return TY_UNKNOWN;
         case ND_FOR:
             active_depth++;
             if (n->init) analyze(n->init);
-            if (n->cond && !is_numeric(infer_expr_type(n->cond))) {
-                fprintf(stderr, "semantic error line %d: for condition must be numeric\n", n->line);
-                sem_errors++;
-            }
+            if (n->cond) check_condition(n->cond, n, "for");
             if (n->inc) infer_expr_type(n->inc);
             analyze(n->body);
             leave_scope();
