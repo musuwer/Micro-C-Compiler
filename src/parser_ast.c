@@ -286,6 +286,10 @@ static Node *parse_stmt(void) {
     if (match(TK_KW_IF)) {
         Node *n = new_node_at(ND_IF, t->line, t->col);
         expect('(', "'('");
+        // Day4 parser update:
+        //   The condition / then / else fields are kept as explicit AST edges.
+        //   This makes if-else nodes easy to inspect in build/ast.json and later
+        //   lets the Web AST viewer map each control-flow part back to source.
         n->cond = parse_expr();
         expect(')', "')'");
         n->then_branch = parse_stmt();
@@ -296,6 +300,7 @@ static Node *parse_stmt(void) {
     if (match(TK_KW_WHILE)) {
         Node *n = new_node_at(ND_WHILE, t->line, t->col);
         expect('(', "'('");
+        // Day4 parser update: while nodes expose condition and body separately.
         n->cond = parse_expr();
         expect(')', "')'");
         n->body = parse_stmt();
@@ -305,6 +310,11 @@ static Node *parse_stmt(void) {
     if (match(TK_KW_FOR)) {
         Node *n = new_node_at(ND_FOR, t->line, t->col);
         expect('(', "'('");
+        // Day4 parser update:
+        //   for nodes keep four named parts: init, condition, step and body.
+        //   Internally the step expression is stored in n->inc for compatibility
+        //   with existing semantic analysis and VM code, while JSON prints it as
+        //   "step" to match the grammar explanation used in the report.
         if (match(';')) {
             n->init = NULL;
         } else if (is_type_keyword(peek()->kind)) {
@@ -369,11 +379,11 @@ static void dump_ast_node(FILE *fp, Node *n, int ind) {
     #define CHILD(field, label) if (n->field) { fprintf(fp, ",\n"); indent(fp, ind + 2); fprintf(fp, "\"%s\":", (label)); dump_ast_node(fp, n->field, ind + 2); }
     CHILD(lhs, "lhs")
     CHILD(rhs, "rhs")
-    CHILD(cond, "cond")
+    CHILD(cond, "condition")
     CHILD(then_branch, "then")
     CHILD(else_branch, "else")
     CHILD(init, "init")
-    CHILD(inc, "inc")
+    CHILD(inc, "step")
     CHILD(body, "body")
     #undef CHILD
 
