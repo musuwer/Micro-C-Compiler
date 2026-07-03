@@ -10,6 +10,10 @@
 //   1. Centralize logical/comparison operator recognition.
 //   2. Ensure &&, ||, !, ==, !=, <= and >= all appear as explicit tokens
 //      for expression-precedence parser tests.
+// Day5 update:
+//   1. Verify line/col tracking after newlines and comments.
+//   2. Ensure declaration tokens (int, float, identifiers) have accurate
+//      line and column positions for symbol table decl_line output.
 
 TokenVec tokens;
 int pos = 0;

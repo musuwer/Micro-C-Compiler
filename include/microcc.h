@@ -97,7 +97,7 @@ enum {
     TK_AND,
     TK_OR
 };
-
+//add line/col
 typedef struct {
     int kind;
     char *lexeme;
