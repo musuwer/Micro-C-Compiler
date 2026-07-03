@@ -11,6 +11,15 @@
 //   Statement checking still uses analyze(Node *n), while conditions,
 //   assignments and expression statements call infer_expr_type() explicitly.
 //   This keeps the semantic module ready for later int/float checking work.
+// Day5 update:
+//   1. Symbol table entries now track initialization and usage status.
+//      These flags enable warnings for uninitialized variable use and help the
+//      Web frontend display complete symbol information.
+//   2. The symbols.json output includes "initialized" and "used" boolean fields.
+//   3. Variable assignment marks the left-hand side as initialized.
+//   4. Variable reference marks the symbol as used and warns if uninitialized.
+//   5. Scope shadowing is verified through separate slot allocation per depth.
+//
 
 typedef struct {
     char *name;
@@ -19,6 +28,8 @@ typedef struct {
     int slot;
     int line;
     bool active;
+    bool initialized;
+    bool used;       
 } Symbol;
 
 static Symbol syms[512];
@@ -47,7 +58,7 @@ static Symbol *find_in_current_scope(const char *name) {
     return NULL;
 }
 
-static Symbol *add_symbol(const char *name, Type type, int line) {
+static Symbol *add_symbol(const char *name, Type type, int line, bool has_init) {
     if (sym_count >= (int)(sizeof(syms) / sizeof(syms[0]))) die("too many symbols");
     Symbol *s = &syms[sym_count++];
     s->name = xstrdup(name);
@@ -56,6 +67,8 @@ static Symbol *add_symbol(const char *name, Type type, int line) {
     s->slot = next_slot++;
     s->line = line;
     s->active = true;
+    s->initialized = has_init;
+    s->used = false;    
     return s;
 }
 
@@ -87,6 +100,10 @@ Type infer_expr_type(Node *n) {
             }
             Type lhs = infer_expr_type(n->lhs);
             Type rhs = infer_expr_type(n->rhs);
+            if (n->lhs && n->lhs->kind == ND_VAR) {
+                Symbol *s = find_symbol(n->lhs->name);
+                if (s) s->initialized = true;
+            }
             n->type = lhs;
             n->slot = n->lhs->slot;
             if (lhs == TY_INT && rhs == TY_FLOAT) {
@@ -135,6 +152,10 @@ Type infer_expr_type(Node *n) {
                 sem_errors++;
                 n->type = TY_UNKNOWN;
                 return n->type;
+            }
+            s->used = true; 
+            if (!s->initialized) {
+                fprintf(stderr, "semantic warning line %d: variable '%s' used before initialization\n", n->line, n->name);
             }
             n->type = s->type;
             n->slot = s->slot;
@@ -238,8 +259,12 @@ void dump_symbols_json(const char *path) {
     for (int i = 0; i < sym_count; i++) {
         fprintf(fp, "  {\"name\":"); json_escape(fp, syms[i].name);
         fprintf(fp, ", \"type\":"); json_escape(fp, type_name(syms[i].type));
-        fprintf(fp, ", \"scope_depth\":%d, \"slot\":%d, \"decl_line\":%d}%s\n",
-                syms[i].depth, syms[i].slot, syms[i].line, i == sym_count - 1 ? "" : ",");
+        fprintf(fp, ", \"scope_depth\":%d, \"slot\":%d, \"decl_line\":%d", 
+                syms[i].depth, syms[i].slot, syms[i].line);
+        fprintf(fp, ", \"initialized\":%s, \"used\":%s", 
+                syms[i].initialized ? "true" : "false",
+                syms[i].used ? "true" : "false");
+        fprintf(fp, "}%s\n", i == sym_count - 1 ? "" : ",");
     }
     fprintf(fp, "]\n");
     fclose(fp);
