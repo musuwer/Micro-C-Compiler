@@ -251,6 +251,10 @@ static Node *parse_assignment(void) {
 
 static Node *parse_expr(void) { return parse_assignment(); }
 
+// Day5 parser update:
+//   Variable declaration nodes now explicitly carry name, type and line
+//   fields so that the semantic analyzer can read declared types directly
+//   and symbols.json can report accurate decl_line.
 static Node *parse_decl(bool need_semicolon) {
     Type ty = parse_type();
     Token *name = expect(TK_IDENT, "identifier");
