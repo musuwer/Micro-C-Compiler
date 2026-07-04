@@ -42,8 +42,8 @@ run_error() {
 }
 
 run_ok "basic control flow" examples/basic_demo.mc 13
-run_ok "scope shadowing" examples/scope_demo.mc 8
 run_ok "for loop" examples/for_demo.mc 10
+run_ok "scope shadowing" examples/scope_demo.mc 8
 run_ok "comments and logical expressions" examples/comment_logic_demo.mc 22
 run_ok "expression precedence" examples/expression_demo.mc 16
 run_ok "complex control-flow AST" examples/ast_complex_demo.mc 20
@@ -106,8 +106,8 @@ if grep -q '"kind":"If"' build/test_ast_complex.json \
    && grep -q '"kind":"For"' build/test_ast_complex.json \
    && grep -q '"condition"' build/test_ast_complex.json \
    && grep -q '"then"' build/test_ast_complex.json \
-   && grep -q '"else"' build/test_ast_complex.json \
    && grep -q '"init"' build/test_ast_complex.json \
+   && grep -q '"else"' build/test_ast_complex.json \
    && grep -q '"step"' build/test_ast_complex.json \
    && grep -q '"body"' build/test_ast_complex.json; then
   echo "[PASS] complex AST control-flow fields generated"
