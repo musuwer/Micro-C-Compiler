@@ -1,5 +1,9 @@
 #include "microcc.h"
-
+// Day6 parser update:
+//   Expression nodes (Binary, Unary, Variable, IntLiteral, FloatLiteral)
+//   carry a type field that is filled by the semantic analyzer.  The
+//   dump_ast_json function prints this field when it is not TY_UNKNOWN,
+//   allowing the AST viewer to show int/float types for every sub-expression.
 // ----------------------------- AST and parser -----------------------------
 
 const char *type_name(Type t) {
