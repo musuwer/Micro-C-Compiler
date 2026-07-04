@@ -106,8 +106,8 @@ if grep -q '"kind":"If"' build/test_ast_complex.json \
    && grep -q '"kind":"For"' build/test_ast_complex.json \
    && grep -q '"condition"' build/test_ast_complex.json \
    && grep -q '"then"' build/test_ast_complex.json \
-   && grep -q '"else"' build/test_ast_complex.json \
    && grep -q '"init"' build/test_ast_complex.json \
+   && grep -q '"else"' build/test_ast_complex.json \
    && grep -q '"step"' build/test_ast_complex.json \
    && grep -q '"body"' build/test_ast_complex.json; then
   echo "[PASS] complex AST control-flow fields generated"

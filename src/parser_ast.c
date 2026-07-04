@@ -1,5 +1,9 @@
 #include "microcc.h"
-
+// Day6 parser update:
+//   Expression nodes (Binary, Unary, Variable, IntLiteral, FloatLiteral)
+//   carry a type field that is filled by the semantic analyzer.  The
+//   dump_ast_json function prints this field when it is not TY_UNKNOWN,
+//   allowing the AST viewer to show int/float types for every sub-expression.
 // ----------------------------- AST and parser -----------------------------
 
 const char *type_name(Type t) {
@@ -251,6 +255,10 @@ static Node *parse_assignment(void) {
 
 static Node *parse_expr(void) { return parse_assignment(); }
 
+// Day5 parser update:
+//   Variable declaration nodes now explicitly carry name, type and line
+//   fields so that the semantic analyzer can read declared types directly
+//   and symbols.json can report accurate decl_line.
 static Node *parse_decl(bool need_semicolon) {
     Type ty = parse_type();
     Token *name = expect(TK_IDENT, "identifier");
