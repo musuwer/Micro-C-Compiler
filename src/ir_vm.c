@@ -163,10 +163,14 @@ static void tac_stmt(Node *n) {
 }
 
 void dump_tac(const char *path, Node *root) {
-    temp_id = 0; label_id = 0;
+    temp_id = 0;
+    label_id = 0;
+    tac.len = 0;
     tac_stmt(root);
     FILE *fp = open_out(path);
-    for (int i = 0; i < tac.len; i++) fprintf(fp, "%03d: %s\n", i, tac.lines[i]);
+    fprintf(fp, "# Micro C three-address code\n");
+    fprintf(fp, "# idx | instruction\n");
+    for (int i = 0; i < tac.len; i++) fprintf(fp, "%03d | %s\n", i, tac.lines[i]);
     fclose(fp);
 }
 
@@ -419,14 +423,30 @@ static void push(long *stack, int *sp, long v) {
     stack[(*sp)++] = v;
 }
 
+static void trace_vm_state(int pc, Instr in, long *stack, int sp, int next_pc) {
+    fprintf(stderr, "pc=%04d instr=%-7s", pc, op_name(in.op));
+    switch (in.op) {
+        case BC_PUSHI: case BC_LOAD: case BC_STORE: case BC_JMP: case BC_JZ:
+            fprintf(stderr, " arg=%ld", in.arg);
+            break;
+        default:
+            break;
+    }
+    fprintf(stderr, " stack=[");
+    for (int i = 0; i < sp; i++) {
+        fprintf(stderr, "%s%ld", i == 0 ? "" : ", ", stack[i]);
+    }
+    fprintf(stderr, "] next_pc=%04d\n", next_pc);
+}
+
 long run_vm(bool trace) {
     long stack[1024] = {0};
     long vars[512] = {0};
     int sp = 0;
     int pc = 0;
     while (pc >= 0 && pc < code.len) {
+        int cur_pc = pc;
         Instr in = code.data[pc];
-        if (trace) fprintf(stderr, "pc=%04d %-7s %ld\n", pc, op_name(in.op), in.arg);
         pc++;
         long a, b;
         switch (in.op) {
@@ -451,9 +471,18 @@ long run_vm(bool trace) {
             case BC_OR: b = pop(stack, &sp); a = pop(stack, &sp); push(stack, &sp, a || b); break;
             case BC_JMP: pc = (int)in.arg; break;
             case BC_JZ: a = pop(stack, &sp); if (!a) pc = (int)in.arg; break;
-            case BC_RET: return pop(stack, &sp);
-            case BC_HALT: return sp > 0 ? pop(stack, &sp) : 0;
+            case BC_RET: {
+                long ret = pop(stack, &sp);
+                if (trace) trace_vm_state(cur_pc, in, stack, sp, -1);
+                return ret;
+            }
+            case BC_HALT: {
+                long ret = sp > 0 ? pop(stack, &sp) : 0;
+                if (trace) trace_vm_state(cur_pc, in, stack, sp, -1);
+                return ret;
+            }
         }
+        if (trace) trace_vm_state(cur_pc, in, stack, sp, pc);
     }
     die("VM program counter out of range");
     return 0;
