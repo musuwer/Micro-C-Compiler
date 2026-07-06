@@ -371,9 +371,25 @@ Node *parse_program(void) {
 
 static void indent(FILE *fp, int n) { for (int i = 0; i < n; i++) fputc(' ', fp); }
 
+static int ast_json_next_id = 1;
+static Node *ast_json_nodes[4096];
+static int ast_json_node_count = 0;
+
+static int ast_node_id(Node *n) {
+    for (int i = 0; i < ast_json_node_count; i++) {
+        if (ast_json_nodes[i] == n) return i + 1;
+    }
+    if (ast_json_node_count >= (int)(sizeof(ast_json_nodes) / sizeof(ast_json_nodes[0]))) {
+        die("too many AST nodes for JSON dump");
+    }
+    ast_json_nodes[ast_json_node_count++] = n;
+    return ast_json_next_id++;
+}
+
 static void dump_ast_node(FILE *fp, Node *n, int ind) {
     if (!n) { fputs("null", fp); return; }
     fprintf(fp, "{\n");
+    indent(fp, ind + 2); fprintf(fp, "\"id\":%d,\n", ast_node_id(n));
     indent(fp, ind + 2); fprintf(fp, "\"kind\":"); json_escape(fp, node_kind_name(n->kind));
     fprintf(fp, ",\n");
     indent(fp, ind + 2); fprintf(fp, "\"line\":%d, \"col\":%d", n->line, n->col);
@@ -395,22 +411,40 @@ static void dump_ast_node(FILE *fp, Node *n, int ind) {
     CHILD(body, "body")
     #undef CHILD
 
-    if (n->len > 0) {
-        fprintf(fp, ",\n");
-        indent(fp, ind + 2); fprintf(fp, "\"children\":[\n");
-        for (int i = 0; i < n->len; i++) {
-            indent(fp, ind + 4);
-            dump_ast_node(fp, n->items[i], ind + 4);
-            fprintf(fp, "%s\n", i == n->len - 1 ? "" : ",");
-        }
-        indent(fp, ind + 2); fprintf(fp, "]");
+    fprintf(fp, ",\n");
+    indent(fp, ind + 2); fprintf(fp, "\"children\":[");
+    bool first_child = true;
+    #define CHILD_ITEM(child) if (child) { \
+        fprintf(fp, "%s\n", first_child ? "" : ","); \
+        indent(fp, ind + 4); \
+        dump_ast_node(fp, child, ind + 4); \
+        first_child = false; \
     }
+    CHILD_ITEM(n->lhs)
+    CHILD_ITEM(n->rhs)
+    CHILD_ITEM(n->cond)
+    CHILD_ITEM(n->then_branch)
+    CHILD_ITEM(n->else_branch)
+    CHILD_ITEM(n->init)
+    CHILD_ITEM(n->inc)
+    CHILD_ITEM(n->body)
+    for (int i = 0; i < n->len; i++) {
+        CHILD_ITEM(n->items[i])
+    }
+    #undef CHILD_ITEM
+    if (!first_child) {
+        fprintf(fp, "\n");
+        indent(fp, ind + 2);
+    }
+    fprintf(fp, "]");
     fprintf(fp, "\n");
     indent(fp, ind); fprintf(fp, "}");
 }
 
 void dump_ast_json(const char *path, Node *root) {
     FILE *fp = open_out(path);
+    ast_json_next_id = 1;
+    ast_json_node_count = 0;
     dump_ast_node(fp, root, 0);
     fputc('\n', fp);
     fclose(fp);
