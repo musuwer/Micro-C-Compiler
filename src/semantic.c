@@ -12,14 +12,14 @@
 //   assignments and expression statements call infer_expr_type() explicitly.
 //   This keeps the semantic module ready for later int/float checking work.
 // Day5 update:
-//   Symbol table entries now track initialization and usage status.
-//   These flags enable warnings for uninitialized variable use and help the
-//   Web frontend display complete symbol information.
-//   The symbols.json output includes "initialized" and "used" boolean fields.
-//   Variable assignment marks the left-hand side as initialized.
-//   Variable reference marks the symbol as used and warns if uninitialized.
-//   Scope shadowing is verified through separate slot allocation per depth.
-
+//   1. Symbol table entries now track initialization and usage status.
+//      These flags enable warnings for uninitialized variable use and help the
+//      Web frontend display complete symbol information.
+//   2. The symbols.json output includes "initialized" and "used" boolean fields.
+//   3. Variable assignment marks the left-hand side as initialized.
+//   4. Variable reference marks the symbol as used and warns if uninitialized.
+//   5. Scope shadowing is verified through separate slot allocation per depth.
+//
 
 typedef struct {
     char *name;
@@ -36,7 +36,6 @@ static Symbol syms[512];
 static int sym_count = 0;
 static int active_depth = 0;
 static int next_slot = 0;
-static Type current_func_type = TY_UNKNOWN;  // Day6: track current function return type for validation
 int sem_errors = 0;
 
 // Day4 semantic update:
@@ -199,7 +198,6 @@ Type analyze(Node *n) {
                 fprintf(stderr, "semantic error line %d: demo only supports function main()\n", n->line);
                 sem_errors++;
             }
-            current_func_type = n->type;  // Day6: record function return type
             analyze(n->body);
             return n->type;
         case ND_BLOCK:
@@ -221,15 +219,7 @@ Type analyze(Node *n) {
             }
             return n->type;
         }
-        case ND_RETURN: {
-            Type ret_type = infer_expr_type(n->rhs);
-            // Day6: check return type matches function declaration
-            if (current_func_type == TY_INT && ret_type == TY_FLOAT) {
-                fprintf(stderr, "semantic error line %d: cannot return float from int function\n", n->line);
-                sem_errors++;
-            }
-            return ret_type;
-        }
+        case ND_RETURN:
             return infer_expr_type(n->rhs);
         case ND_IF:
             check_condition(n->cond, n, "if");
@@ -238,7 +228,6 @@ Type analyze(Node *n) {
             return TY_UNKNOWN;
         case ND_WHILE:
             check_condition(n->cond, n, "while");
-            current_func_type = n->type;  // Day6: record function return type
             analyze(n->body);
             return TY_UNKNOWN;
         case ND_FOR:
@@ -246,7 +235,6 @@ Type analyze(Node *n) {
             if (n->init) analyze(n->init);
             if (n->cond) check_condition(n->cond, n, "for");
             if (n->inc) infer_expr_type(n->inc);
-            current_func_type = n->type;  // Day6: record function return type
             analyze(n->body);
             leave_scope();
             return TY_UNKNOWN;
@@ -271,8 +259,10 @@ void dump_symbols_json(const char *path) {
     for (int i = 0; i < sym_count; i++) {
         fprintf(fp, "  {\"name\":"); json_escape(fp, syms[i].name);
         fprintf(fp, ", \"type\":"); json_escape(fp, type_name(syms[i].type));
-        fprintf(fp, ", \"scope_depth\":%d, \"slot\":%d, \"decl_line\":%d", 
+        fprintf(fp, ", \"scopeDepth\":%d, \"slot\":%d, \"declLine\":%d",
                 syms[i].depth, syms[i].slot, syms[i].line);
+        fprintf(fp, ", \"scope_depth\":%d, \"decl_line\":%d",
+                syms[i].depth, syms[i].line);
         fprintf(fp, ", \"initialized\":%s, \"used\":%s", 
                 syms[i].initialized ? "true" : "false",
                 syms[i].used ? "true" : "false");
