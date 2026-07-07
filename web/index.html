@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Micro C Compiler Demo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Micro C Compiler</h1>
+      <p>Token / AST / Symbol / TAC / VM</p>
+    </div>
+    <button id="reloadBtn" type="button">Reload</button>
+  </header>
+
+  <main class="layout">
+    <section class="panel source-panel">
+      <h2>Source</h2>
+      <pre id="sourceView" class="source-view"></pre>
+    </section>
+
+    <section class="panel">
+      <h2>Tokens</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Kind</th>
+              <th>Lexeme</th>
+              <th>Line</th>
+              <th>Col</th>
+              <th>Length</th>
+            </tr>
+          </thead>
+          <tbody id="tokenRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel ast-panel">
+      <h2>AST</h2>
+      <div id="astTree" class="ast-tree"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Symbols</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Scope</th>
+              <th>Decl Line</th>
+              <th>Init</th>
+              <th>Used</th>
+              <th>Slot</th>
+            </tr>
+          </thead>
+          <tbody id="symbolRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel text-panel">
+      <h2>TAC</h2>
+      <pre id="tacView"></pre>
+    </section>
+
+    <section class="panel text-panel">
+      <h2>Bytecode</h2>
+      <pre id="bytecodeView"></pre>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
