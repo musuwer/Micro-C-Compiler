@@ -14,6 +14,58 @@
 
 ---
 
+## Day 8 Final Demo
+
+This folder is the Day 8 final integration package based on the Day 7 compiler
+outputs. It includes the compiler pipeline plus a native HTML/CSS/JavaScript
+visualization page.
+
+### Build and generate Web data
+
+```bash
+make clean
+make
+bash scripts/build_web_demo.sh
+```
+
+The script writes the files required by the Web page into `web/data/`:
+
+```text
+source.mc
+tokens.json
+ast.json
+symbols.json
+out.tac
+out.bc
+vm_output.txt
+```
+
+### Run the Web page
+
+```bash
+cd web
+python3 -m http.server 8080
+```
+
+Then open:
+
+```text
+http://localhost:8080
+```
+
+The page displays source code, Token table, AST tree, symbol table, TAC and VM
+bytecode. Clicking an AST node highlights the matching source line.
+
+### VM trace
+
+```bash
+./build/microcc examples/ast_complex_demo.mc --trace-vm
+```
+
+The trace prints `pc`, current instruction, stack state and next `pc`.
+
+---
+
 ## 📌 项目简介
 
 **Micro C Compiler** 是一个面向教学场景的微型 C 语言编译器项目，目标是在两周实践周期内完成一个可以运行、可以演示、可以解释的 C 子集编译流程。
