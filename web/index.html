@@ -3,77 +3,139 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Micro C Compiler Demo</title>
+  <title>Micro C Compiler 可视化演示</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="topbar">
-    <div>
-      <h1>Micro C Compiler</h1>
-      <p>Token / AST / Symbol / TAC / VM</p>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="编译阶段导航">
+      <div class="brand-card">
+        <img src="icons/ic_model.svg" alt="" class="brand-icon">
+        <div>
+          <strong>Micro C</strong>
+          <span>Teaching Compiler</span>
+        </div>
+      </div>
+      <nav class="stage-nav">
+        <a href="#source-panel"><img src="icons/ic_file.svg" alt="">源码</a>
+        <a href="#tokens-panel"><img src="icons/ic_list.svg" alt="">Token</a>
+        <a href="#ast-panel"><img src="icons/ic_source_count.svg" alt="">AST</a>
+        <a href="#symbols-panel"><img src="icons/ic_database.svg" alt="">符号表</a>
+        <a href="#tac-panel"><img src="icons/ic_analytics.svg" alt="">TAC</a>
+        <a href="#bytecode-panel"><img src="icons/ic_chunk.svg" alt="">字节码</a>
+        <a href="#diagnostics-panel"><img src="icons/ic_warning.svg" alt="">诊断</a>
+      </nav>
+    </aside>
+
+    <div class="page">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><img src="icons/ic_success.svg" alt=""> Advanced B/C Completed</p>
+          <h1>编译流程交互式可视化</h1>
+          <p class="subtitle">使用图标化编译流水线展示源码、Token、AST、符号表、TAC、VM 字节码与执行结果；支持多示例切换、Token 精确高亮与 AST 节点定位。</p>
+        </div>
+        <div class="hero-actions">
+          <label class="select-label" for="demoSelect">
+            <img src="icons/ic_documents.svg" alt="">示例程序
+          </label>
+          <select id="demoSelect" aria-label="选择示例程序">
+            <option value="">默认演示</option>
+          </select>
+          <button id="expandAstBtn" type="button"><img src="icons/ic_view_list.svg" alt="">展开 AST</button>
+          <button id="collapseAstBtn" type="button"><img src="icons/ic_close.svg" alt="">折叠 AST</button>
+          <button id="reloadBtn" type="button" class="primary"><img src="icons/ic_refresh.svg" alt="">重新加载</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="pipeline" aria-label="编译流水线">
+          <article><img src="icons/ic_file_txt.svg" alt=""><span>Source</span><strong>.mc 源码</strong></article>
+          <article><img src="icons/ic_list.svg" alt=""><span>Lexer</span><strong>Token 流</strong></article>
+          <article><img src="icons/ic_source.svg" alt=""><span>Parser</span><strong>AST 树</strong></article>
+          <article><img src="icons/ic_database.svg" alt=""><span>Semantic</span><strong>符号表</strong></article>
+          <article><img src="icons/ic_bar_chart.svg" alt=""><span>IR</span><strong>TAC</strong></article>
+          <article><img src="icons/ic_chunk.svg" alt=""><span>VM</span><strong>字节码执行</strong></article>
+        </section>
+
+        <section class="summary-grid" aria-label="编译结果摘要">
+          <article class="summary-card"><img src="icons/ic_list.svg" alt=""><span>Token 数量</span><strong id="tokenCount">0</strong></article>
+          <article class="summary-card"><img src="icons/ic_source_count.svg" alt=""><span>AST 节点</span><strong id="astCount">0</strong></article>
+          <article class="summary-card"><img src="icons/ic_database.svg" alt=""><span>符号数量</span><strong id="symbolCount">0</strong></article>
+          <article class="summary-card"><img src="icons/ic_success.svg" alt=""><span>VM 返回值</span><strong id="vmResult">-</strong></article>
+        </section>
+
+        <p id="demoNote" class="demo-note">当前数据来源：web/data/source.mc</p>
+
+        <section class="layout">
+          <article class="panel source-panel" id="source-panel">
+            <div class="panel-head">
+              <div class="panel-title"><img src="icons/ic_file.svg" alt=""><div><h2>Source 源代码</h2><p id="sourceMeta">web/data/source.mc</p></div></div>
+              <button id="copySourceBtn" type="button" class="ghost"><img src="icons/ic_copy.svg" alt="">复制</button>
+            </div>
+            <pre id="sourceView" class="source-view"></pre>
+          </article>
+
+          <article class="panel ast-panel" id="ast-panel">
+            <div class="panel-head">
+              <div class="panel-title"><img src="icons/ic_source_count.svg" alt=""><div><h2>AST 抽象语法树</h2><p>点击节点可定位源码行，节点展示 kind、name、op、type、slot 等信息。</p></div></div>
+            </div>
+            <div id="astTree" class="ast-tree"></div>
+          </article>
+
+          <article class="panel" id="tokens-panel">
+            <div class="panel-head">
+              <div class="panel-title"><img src="icons/ic_list.svg" alt=""><div><h2>Tokens 词法分析结果</h2><p>kind / lexeme / line / col / length 可直接服务 Web 表格展示。</p></div></div>
+              <label class="search-box"><img src="icons/ic_search.svg" alt=""><input id="tokenSearch" type="search" placeholder="搜索 kind 或 lexeme"></label>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>#</th><th>Kind</th><th>Lexeme</th><th>Line</th><th>Col</th><th>Length</th></tr>
+                </thead>
+                <tbody id="tokenRows"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel" id="symbols-panel">
+            <div class="panel-head">
+              <div class="panel-title"><img src="icons/ic_database.svg" alt=""><div><h2>Symbols 符号表</h2><p>展示变量类型、作用域深度、声明行、初始化与使用状态。</p></div></div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Name</th><th>Type</th><th>Scope</th><th>Decl Line</th><th>Init</th><th>Used</th><th>Slot</th></tr>
+                </thead>
+                <tbody id="symbolRows"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel text-panel" id="tac-panel">
+            <div class="panel-title compact"><img src="icons/ic_analytics.svg" alt=""><h2>TAC 三地址码</h2></div>
+            <pre id="tacView"></pre>
+          </article>
+
+          <article class="panel text-panel" id="bytecode-panel">
+            <div class="panel-title compact"><img src="icons/ic_chunk.svg" alt=""><h2>Bytecode 虚拟机字节码</h2></div>
+            <pre id="bytecodeView"></pre>
+          </article>
+
+          <article class="panel text-panel wide-panel">
+            <div class="panel-title compact"><img src="icons/ic_success.svg" alt=""><h2>VM 执行结果</h2></div>
+            <pre id="vmOutputView"></pre>
+          </article>
+
+          <article class="panel text-panel wide-panel" id="diagnostics-panel">
+            <div class="panel-head">
+              <div class="panel-title"><img src="icons/ic_warning.svg" alt=""><div><h2>错误恢复机制演示</h2><p>展示 parse_recovery_demo.mc 一次收集多处语法错误的输出。</p></div></div>
+            </div>
+            <pre id="diagnosticsView"></pre>
+          </article>
+        </section>
+      </main>
     </div>
-    <button id="reloadBtn" type="button">Reload</button>
-  </header>
-
-  <main class="layout">
-    <section class="panel source-panel">
-      <h2>Source</h2>
-      <pre id="sourceView" class="source-view"></pre>
-    </section>
-
-    <section class="panel">
-      <h2>Tokens</h2>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Kind</th>
-              <th>Lexeme</th>
-              <th>Line</th>
-              <th>Col</th>
-              <th>Length</th>
-            </tr>
-          </thead>
-          <tbody id="tokenRows"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="panel ast-panel">
-      <h2>AST</h2>
-      <div id="astTree" class="ast-tree"></div>
-    </section>
-
-    <section class="panel">
-      <h2>Symbols</h2>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Scope</th>
-              <th>Decl Line</th>
-              <th>Init</th>
-              <th>Used</th>
-              <th>Slot</th>
-            </tr>
-          </thead>
-          <tbody id="symbolRows"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="panel text-panel">
-      <h2>TAC</h2>
-      <pre id="tacView"></pre>
-    </section>
-
-    <section class="panel text-panel">
-      <h2>Bytecode</h2>
-      <pre id="bytecodeView"></pre>
-    </section>
-  </main>
+  </div>
 
   <script src="app.js"></script>
 </body>
