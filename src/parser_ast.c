@@ -1,10 +1,11 @@
 #include "microcc.h"
-// Day6 parser update:
-//   Expression nodes (Binary, Unary, Variable, IntLiteral, FloatLiteral)
-//   carry a type field that is filled by the semantic analyzer.  The
-//   dump_ast_json function prints this field when it is not TY_UNKNOWN,
-//   allowing the AST viewer to show int/float types for every sub-expression.
+
 // ----------------------------- AST and parser -----------------------------
+// Advanced requirement B:
+//   The parser uses statement-level synchronization.  When a syntax error is
+//   found, it reports the line/column/type of error, skips only to a safe
+//   boundary such as ';', '}', or the beginning of the next statement, and then
+//   continues parsing.  This allows one run to collect multiple parse errors.
 
 const char *type_name(Type t) {
     switch (t) {
@@ -26,8 +27,8 @@ static Node *new_node_at(NodeKind kind, int line, int col) {
     return n;
 }
 
-
 static void node_add(Node *block, Node *child) {
+    if (!block || !child) return;
     if (block->len == block->cap) {
         block->cap = block->cap ? block->cap * 2 : 8;
         block->items = (Node **)realloc(block->items, sizeof(Node *) * (size_t)block->cap);
@@ -67,27 +68,78 @@ static bool match(int kind) {
     return false;
 }
 
-static Token *expect(int kind, const char *what) {
-    if (peek()->kind == kind) return &tokens.data[pos++];
-    fprintf(stderr, "parse error at %d:%d: expected %s, got %s '%s'\n",
-            peek()->line, peek()->col, what, token_kind_name(peek()->kind), peek()->lexeme);
-    parse_errors++;
-    return &tokens.data[pos++];
+static bool is_type_keyword(int kind) { return kind == TK_KW_INT || kind == TK_KW_FLOAT; }
+
+static bool is_stmt_start(int kind) {
+    return kind == '{' || kind == ';' || kind == TK_KW_RETURN || kind == TK_KW_IF ||
+           kind == TK_KW_WHILE || kind == TK_KW_FOR || is_type_keyword(kind);
 }
 
-static bool is_type_keyword(int kind) { return kind == TK_KW_INT || kind == TK_KW_FLOAT; }
+static bool is_expr_boundary(int kind) {
+    return kind == ';' || kind == ')' || kind == '}' || kind == TK_EOF;
+}
+
+static void report_expected(Token *t, const char *what) {
+    fprintf(stderr, "parse error line %d col %d: expected %s, got %s '%s'\n",
+            t->line, t->col, what, token_kind_name(t->kind), t->lexeme);
+    parse_errors++;
+}
+
+// Synchronize after a statement-level error.  Do not consume the beginning of
+// the next valid statement; this is what lets the parser continue collecting
+// errors instead of cascading from one missing semicolon.
+static void synchronize_stmt(void) {
+    while (!at_eof()) {
+        int k = peek()->kind;
+        if (k == ';') { pos++; return; }
+        if (k == '}' || is_stmt_start(k)) return;
+        pos++;
+    }
+}
+
+static bool expect_semicolon(void) {
+    if (match(';')) return true;
+    report_expected(peek(), "';'");
+    synchronize_stmt();
+    return false;
+}
+
+static bool expect_delim(int kind, const char *what) {
+    if (match(kind)) return true;
+    report_expected(peek(), what);
+
+    // For missing ')' before a block or statement, keep the current token so the
+    // caller can parse the body normally.
+    if (peek()->kind == '{' || peek()->kind == '}' || peek()->kind == ';' || is_stmt_start(peek()->kind) || at_eof())
+        return false;
+
+    // Otherwise skip to the requested delimiter or a safe statement boundary.
+    while (!at_eof()) {
+        if (match(kind)) return false;
+        if (peek()->kind == '{' || peek()->kind == '}' || peek()->kind == ';' || is_stmt_start(peek()->kind))
+            return false;
+        pos++;
+    }
+    return false;
+}
 
 static Type parse_type(void) {
     if (match(TK_KW_INT)) return TY_INT;
     if (match(TK_KW_FLOAT)) return TY_FLOAT;
-    fprintf(stderr, "parse error at %d:%d: expected type keyword\n", peek()->line, peek()->col);
-    parse_errors++;
-    pos++;
+    report_expected(peek(), "type keyword");
+    if (!at_eof()) pos++;
     return TY_UNKNOWN;
 }
 
 static Node *parse_stmt(void);
 static Node *parse_expr(void);
+
+static Node *error_int_node(Token *t) {
+    Node *n = new_node_at(ND_INT, t->line, t->col);
+    n->ival = 0;
+    n->type = TY_INT;
+    return n;
+}
 
 static Node *parse_primary(void) {
     Token *t = peek();
@@ -110,14 +162,16 @@ static Node *parse_primary(void) {
     }
     if (match('(')) {
         Node *n = parse_expr();
-        expect(')', "')'");
+        expect_delim(')', "')'");
         return n;
     }
-    fprintf(stderr, "parse error at %d:%d: expected expression, got %s '%s'\n",
+
+    fprintf(stderr, "parse error line %d col %d: expected expression, got %s '%s'\n",
             t->line, t->col, token_kind_name(t->kind), t->lexeme);
     parse_errors++;
-    pos++;
-    return new_node_at(ND_INT, t->line, t->col);
+
+    if (!is_expr_boundary(t->kind) && !is_stmt_start(t->kind)) pos++;
+    return error_int_node(t);
 }
 
 static Node *parse_unary(void) {
@@ -139,12 +193,6 @@ static Node *parse_unary(void) {
     return parse_primary();
 }
 
-// Day3 parser update:
-//   Expression parsing is now written as a clear precedence ladder.
-//   From high to low: unary -> multiplicative -> additive -> relational
-//   -> equality -> logical_and -> logical_or -> assignment.
-//   Binary and assignment nodes also record the operator token position,
-//   which makes AST JSON easier to explain and later easier to visualize.
 static Node *new_binary_at(const char *op, Node *lhs, Node *rhs, int line, int col) {
     Node *n = new_node_at(ND_BINARY, line, col);
     strncpy(n->op, op, sizeof(n->op) - 1);
@@ -255,28 +303,36 @@ static Node *parse_assignment(void) {
 
 static Node *parse_expr(void) { return parse_assignment(); }
 
-// Day5 parser update:
-//   Variable declaration nodes now explicitly carry name, type and line
-//   fields so that the semantic analyzer can read declared types directly
-//   and symbols.json can report accurate decl_line.
 static Node *parse_decl(bool need_semicolon) {
+    Token *start = peek();
     Type ty = parse_type();
-    Token *name = expect(TK_IDENT, "identifier");
-    Node *n = new_node_at(ND_DECL, name->line, name->col);
+    Token *name = NULL;
+    if (match(TK_IDENT)) {
+        name = prev();
+    } else {
+        report_expected(peek(), "identifier");
+        if (!at_eof() && !is_expr_boundary(peek()->kind) && peek()->kind != '=' && !is_stmt_start(peek()->kind)) pos++;
+    }
+
+    Node *n = new_node_at(ND_DECL, name ? name->line : start->line, name ? name->col : start->col);
     n->type = ty;
-    n->name = xstrdup(name->lexeme);
+    n->name = xstrdup(name ? name->lexeme : "__error_decl");
     if (match('=')) n->rhs = parse_expr();
-    if (need_semicolon) expect(';', "';'");
+    if (need_semicolon) expect_semicolon();
     return n;
 }
 
 static Node *parse_block(void) {
-    Token *open = expect('{', "'{' ");
+    Token *open = peek();
+    expect_delim('{', "'{'");
     Node *block = new_node_at(ND_BLOCK, open->line, open->col);
-    while (!at_eof() && !match('}')) {
+    while (!at_eof()) {
+        if (match('}')) return block;
         if (is_type_keyword(peek()->kind)) node_add(block, parse_decl(true));
         else node_add(block, parse_stmt());
     }
+    fprintf(stderr, "parse error line %d col %d: expected '}' before end of file\n", open->line, open->col);
+    parse_errors++;
     return block;
 }
 
@@ -287,19 +343,15 @@ static Node *parse_stmt(void) {
     if (match(TK_KW_RETURN)) {
         Node *n = new_node_at(ND_RETURN, t->line, t->col);
         n->rhs = parse_expr();
-        expect(';', "';'");
+        expect_semicolon();
         return n;
     }
 
     if (match(TK_KW_IF)) {
         Node *n = new_node_at(ND_IF, t->line, t->col);
-        expect('(', "'('");
-        // Day4 parser update:
-        //   The condition / then / else fields are kept as explicit AST edges.
-        //   This makes if-else nodes easy to inspect in build/ast.json and later
-        //   lets the Web AST viewer map each control-flow part back to source.
+        expect_delim('(', "'('");
         n->cond = parse_expr();
-        expect(')', "')'");
+        expect_delim(')', "')'");
         n->then_branch = parse_stmt();
         if (match(TK_KW_ELSE)) n->else_branch = parse_stmt();
         return n;
@@ -307,22 +359,16 @@ static Node *parse_stmt(void) {
 
     if (match(TK_KW_WHILE)) {
         Node *n = new_node_at(ND_WHILE, t->line, t->col);
-        expect('(', "'('");
-        // Day4 parser update: while nodes expose condition and body separately.
+        expect_delim('(', "'('");
         n->cond = parse_expr();
-        expect(')', "')'");
+        expect_delim(')', "')'");
         n->body = parse_stmt();
         return n;
     }
 
     if (match(TK_KW_FOR)) {
         Node *n = new_node_at(ND_FOR, t->line, t->col);
-        expect('(', "'('");
-        // Day4 parser update:
-        //   for nodes keep four named parts: init, condition, step and body.
-        //   Internally the step expression is stored in n->inc for compatibility
-        //   with existing semantic analysis and VM code, while JSON prints it as
-        //   "step" to match the grammar explanation used in the report.
+        expect_delim('(', "'('");
         if (match(';')) {
             n->init = NULL;
         } else if (is_type_keyword(peek()->kind)) {
@@ -330,15 +376,15 @@ static Node *parse_stmt(void) {
         } else {
             n->init = new_node_at(ND_EXPR_STMT, peek()->line, peek()->col);
             n->init->rhs = parse_expr();
-            expect(';', "';'");
+            expect_semicolon();
         }
         if (!match(';')) {
             n->cond = parse_expr();
-            expect(';', "';'");
+            expect_semicolon();
         }
         if (!match(')')) {
             n->inc = parse_expr();
-            expect(')', "')'");
+            expect_delim(')', "')'");
         }
         n->body = parse_stmt();
         return n;
@@ -346,24 +392,35 @@ static Node *parse_stmt(void) {
 
     if (match(';')) return new_node_at(ND_EMPTY, t->line, t->col);
 
+    if (peek()->kind == '}' || at_eof()) return new_node_at(ND_EMPTY, t->line, t->col);
+
     Node *n = new_node_at(ND_EXPR_STMT, t->line, t->col);
     n->rhs = parse_expr();
-    expect(';', "';'");
+    expect_semicolon();
     return n;
 }
 
 Node *parse_program(void) {
     Node *prog = new_node_at(ND_PROGRAM, 1, 1);
     Type ret = parse_type();
-    Token *name = expect(TK_IDENT, "function name");
-    expect('(', "'('");
-    expect(')', "')'");
-    Node *fn = new_node_at(ND_FUNC, name->line, name->col);
+    Token *name = NULL;
+    if (match(TK_IDENT)) {
+        name = prev();
+    } else {
+        report_expected(peek(), "function name");
+        if (!at_eof()) pos++;
+    }
+    expect_delim('(', "'('");
+    expect_delim(')', "')'");
+    Node *fn = new_node_at(ND_FUNC, name ? name->line : 1, name ? name->col : 1);
     fn->type = ret;
-    fn->name = xstrdup(name->lexeme);
+    fn->name = xstrdup(name ? name->lexeme : "__error_function");
     fn->body = parse_block();
     node_add(prog, fn);
-    expect(TK_EOF, "end of file");
+    if (!at_eof()) {
+        report_expected(peek(), "end of file");
+        while (!at_eof()) pos++;
+    }
     return prog;
 }
 
@@ -449,4 +506,3 @@ void dump_ast_json(const char *path, Node *root) {
     fputc('\n', fp);
     fclose(fp);
 }
-
