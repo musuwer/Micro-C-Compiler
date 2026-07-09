@@ -14,7 +14,7 @@ make -s build/microcc
 ./build/microcc examples/float_token_demo.mc \
   --dump-tokens build/float_tokens.json \
   --dump-ast build/float_ast.json \
-  --dump-symbols build/float_symbols.json || true
+  --dump-symbols build/float_symbols.json
 
 printf '\nGenerated files:\n'
 printf '  build/tokens.json       Lexer output\n'

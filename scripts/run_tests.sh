@@ -41,12 +41,43 @@ run_error() {
   fi
 }
 
+run_error_count() {
+  local name="$1"
+  local file="$2"
+  local keyword="$3"
+  local min_count="$4"
+  set +e
+  local out
+  out=$(./build/microcc "$file" 2>&1)
+  local code=$?
+  set -e
+  local count
+  count=$(printf "%s" "$out" | grep -c "$keyword" || true)
+  if [ $code -ne 0 ] && [ "$count" -ge "$min_count" ]; then
+    echo "[PASS] $name collected $count $keyword messages"
+    pass=$((pass + 1))
+  else
+    echo "[FAIL] $name expected at least $min_count $keyword messages, got $count"
+    echo "$out"
+    fail=$((fail + 1))
+  fi
+}
+
+# At least ten normal programs that can be compiled and executed by the VM.
 run_ok "basic control flow" examples/basic_demo.mc 13
 run_ok "for loop" examples/for_demo.mc 10
 run_ok "scope shadowing" examples/scope_demo.mc 8
 run_ok "comments and logical expressions" examples/comment_logic_demo.mc 22
 run_ok "expression precedence" examples/expression_demo.mc 16
 run_ok "complex control-flow AST" examples/ast_complex_demo.mc 20
+run_ok "while loop" examples/while_demo.mc 15
+run_ok "if else logic" examples/if_else_demo.mc 42
+run_ok "nested blocks" examples/nested_blocks_demo.mc 19
+run_ok "unary and logical not" examples/unary_logic_demo.mc 9
+run_ok "empty statements and for clauses" examples/empty_statement_demo.mc 3
+run_ok "logic chain demo" examples/logic_chain_demo.mc 31
+run_ok "nested loop demo" examples/nested_loop_demo.mc 18
+run_ok "accumulate even demo" examples/accumulate_even_demo.mc 30
 
 ./build/microcc examples/basic_demo.mc \
   --dump-tokens build/test_tokens.json \
@@ -88,7 +119,7 @@ fi
 ./build/microcc examples/expression_demo.mc --dump-tokens build/test_expression_tokens.json --dump-ast build/test_expression_ast.json > /dev/null
 if grep -q "==" build/test_expression_tokens.json \
    && grep -q "!" build/test_expression_tokens.json \
-   && grep -q "<=\|>=\|<\|>" build/test_expression_tokens.json \
+   && grep -Eq "<=|>=|<|>" build/test_expression_tokens.json \
    && grep -q "\"op\":\"*\"" build/test_expression_ast.json \
    && grep -q "\"op\":\"+\"" build/test_expression_ast.json \
    && grep -q "\"op\":\"&&\"" build/test_expression_ast.json \
@@ -119,8 +150,7 @@ fi
 
 run_error "malformed float literal" examples/lex_error_bad_float.mc "malformed floating literal"
 run_error "unclosed block comment" examples/lex_error_unclosed_comment.mc "unclosed block comment"
-run_error "parser syntax diagnostics" examples/parse_error_demo.mc "parse error"
-
+run_error_count "parser recovery" examples/parse_recovery_demo.mc "parse error" 4
 run_error "undeclared variable" examples/semantic_error_demo.mc "undeclared variable"
 run_error "duplicate declaration" examples/duplicate_error_demo.mc "duplicate declaration"
 run_error "type checking" examples/type_error_demo.mc "cannot assign float"
