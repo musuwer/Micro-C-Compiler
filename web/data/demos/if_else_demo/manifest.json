@@ -1,0 +1,8 @@
+{
+  "id": "if_else_demo",
+  "title": "If-else logic",
+  "source": "examples/if_else_demo.mc",
+  "expectedReturn": 42,
+  "featureB": "parser error recovery with multi-error collection",
+  "featureC": "interactive AST tree with source-line and token-range highlighting"
+}

@@ -1,0 +1,16 @@
+[
+  {"id":"basic_demo", "title":"Basic control flow", "source":"examples/basic_demo.mc", "expected":13},
+  {"id":"for_demo", "title":"For loop", "source":"examples/for_demo.mc", "expected":10},
+  {"id":"scope_demo", "title":"Scope shadowing", "source":"examples/scope_demo.mc", "expected":8},
+  {"id":"comment_logic_demo", "title":"Comments and logical expressions", "source":"examples/comment_logic_demo.mc", "expected":22},
+  {"id":"expression_demo", "title":"Expression precedence", "source":"examples/expression_demo.mc", "expected":16},
+  {"id":"ast_complex_demo", "title":"Complex control-flow AST", "source":"examples/ast_complex_demo.mc", "expected":20},
+  {"id":"while_demo", "title":"While loop", "source":"examples/while_demo.mc", "expected":15},
+  {"id":"if_else_demo", "title":"If-else logic", "source":"examples/if_else_demo.mc", "expected":42},
+  {"id":"nested_blocks_demo", "title":"Nested blocks", "source":"examples/nested_blocks_demo.mc", "expected":19},
+  {"id":"unary_logic_demo", "title":"Unary and logical not", "source":"examples/unary_logic_demo.mc", "expected":9},
+  {"id":"empty_statement_demo", "title":"Empty statements and for clauses", "source":"examples/empty_statement_demo.mc", "expected":3},
+  {"id":"logic_chain_demo", "title":"Logic chain demo", "source":"examples/logic_chain_demo.mc", "expected":31},
+  {"id":"nested_loop_demo", "title":"Nested loop demo", "source":"examples/nested_loop_demo.mc", "expected":18},
+  {"id":"accumulate_even_demo", "title":"Accumulation demo", "source":"examples/accumulate_even_demo.mc", "expected":30}
+]

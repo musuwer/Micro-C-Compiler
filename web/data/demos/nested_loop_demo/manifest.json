@@ -1,0 +1,8 @@
+{
+  "id": "nested_loop_demo",
+  "title": "Nested loop demo",
+  "source": "examples/nested_loop_demo.mc",
+  "expectedReturn": 18,
+  "featureB": "parser error recovery with multi-error collection",
+  "featureC": "interactive AST tree with source-line and token-range highlighting"
+}

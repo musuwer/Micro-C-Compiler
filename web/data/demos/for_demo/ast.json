@@ -1,0 +1,1866 @@
+{
+  "id":1,
+  "kind":"Program",
+  "line":1, "col":1,
+  "children":[
+    {
+      "id":2,
+      "kind":"Function",
+      "line":1, "col":5,
+      "name":"main",
+      "type":"int",
+      "body":{
+        "id":3,
+        "kind":"Block",
+        "line":1, "col":12,
+        "children":[
+          {
+            "id":4,
+            "kind":"Declaration",
+            "line":2, "col":9,
+            "name":"sum",
+            "type":"int",
+            "slot":0,
+            "rhs":{
+              "id":5,
+              "kind":"IntLiteral",
+              "line":2, "col":15,
+              "value":0,
+              "type":"int",
+              "children":[]
+            },
+            "children":[
+              {
+                "id":5,
+                "kind":"IntLiteral",
+                "line":2, "col":15,
+                "value":0,
+                "type":"int",
+                "children":[]
+              }
+            ]
+          },
+          {
+            "id":6,
+            "kind":"For",
+            "line":4, "col":5,
+            "condition":{
+              "id":7,
+              "kind":"Binary",
+              "line":4, "col":23,
+              "op":"<=",
+              "type":"int",
+              "lhs":{
+                "id":8,
+                "kind":"Variable",
+                "line":4, "col":21,
+                "name":"i",
+                "type":"int",
+                "slot":1,
+                "children":[]
+              },
+              "rhs":{
+                "id":9,
+                "kind":"IntLiteral",
+                "line":4, "col":26,
+                "value":4,
+                "type":"int",
+                "children":[]
+              },
+              "children":[
+                {
+                  "id":8,
+                  "kind":"Variable",
+                  "line":4, "col":21,
+                  "name":"i",
+                  "type":"int",
+                  "slot":1,
+                  "children":[]
+                },
+                {
+                  "id":9,
+                  "kind":"IntLiteral",
+                  "line":4, "col":26,
+                  "value":4,
+                  "type":"int",
+                  "children":[]
+                }
+              ]
+            },
+            "init":{
+              "id":10,
+              "kind":"Declaration",
+              "line":4, "col":14,
+              "name":"i",
+              "type":"int",
+              "slot":1,
+              "rhs":{
+                "id":11,
+                "kind":"IntLiteral",
+                "line":4, "col":18,
+                "value":1,
+                "type":"int",
+                "children":[]
+              },
+              "children":[
+                {
+                  "id":11,
+                  "kind":"IntLiteral",
+                  "line":4, "col":18,
+                  "value":1,
+                  "type":"int",
+                  "children":[]
+                }
+              ]
+            },
+            "step":{
+              "id":12,
+              "kind":"Assign",
+              "line":4, "col":31,
+              "type":"int",
+              "slot":1,
+              "lhs":{
+                "id":13,
+                "kind":"Variable",
+                "line":4, "col":29,
+                "name":"i",
+                "type":"int",
+                "slot":1,
+                "children":[]
+              },
+              "rhs":{
+                "id":14,
+                "kind":"Binary",
+                "line":4, "col":35,
+                "op":"+",
+                "type":"int",
+                "lhs":{
+                  "id":15,
+                  "kind":"Variable",
+                  "line":4, "col":33,
+                  "name":"i",
+                  "type":"int",
+                  "slot":1,
+                  "children":[]
+                },
+                "rhs":{
+                  "id":16,
+                  "kind":"IntLiteral",
+                  "line":4, "col":37,
+                  "value":1,
+                  "type":"int",
+                  "children":[]
+                },
+                "children":[
+                  {
+                    "id":15,
+                    "kind":"Variable",
+                    "line":4, "col":33,
+                    "name":"i",
+                    "type":"int",
+                    "slot":1,
+                    "children":[]
+                  },
+                  {
+                    "id":16,
+                    "kind":"IntLiteral",
+                    "line":4, "col":37,
+                    "value":1,
+                    "type":"int",
+                    "children":[]
+                  }
+                ]
+              },
+              "children":[
+                {
+                  "id":13,
+                  "kind":"Variable",
+                  "line":4, "col":29,
+                  "name":"i",
+                  "type":"int",
+                  "slot":1,
+                  "children":[]
+                },
+                {
+                  "id":14,
+                  "kind":"Binary",
+                  "line":4, "col":35,
+                  "op":"+",
+                  "type":"int",
+                  "lhs":{
+                    "id":15,
+                    "kind":"Variable",
+                    "line":4, "col":33,
+                    "name":"i",
+                    "type":"int",
+                    "slot":1,
+                    "children":[]
+                  },
+                  "rhs":{
+                    "id":16,
+                    "kind":"IntLiteral",
+                    "line":4, "col":37,
+                    "value":1,
+                    "type":"int",
+                    "children":[]
+                  },
+                  "children":[
+                    {
+                      "id":15,
+                      "kind":"Variable",
+                      "line":4, "col":33,
+                      "name":"i",
+                      "type":"int",
+                      "slot":1,
+                      "children":[]
+                    },
+                    {
+                      "id":16,
+                      "kind":"IntLiteral",
+                      "line":4, "col":37,
+                      "value":1,
+                      "type":"int",
+                      "children":[]
+                    }
+                  ]
+                }
+              ]
+            },
+            "body":{
+              "id":17,
+              "kind":"Block",
+              "line":4, "col":40,
+              "children":[
+                {
+                  "id":18,
+                  "kind":"ExpressionStatement",
+                  "line":5, "col":9,
+                  "rhs":{
+                    "id":19,
+                    "kind":"Assign",
+                    "line":5, "col":13,
+                    "type":"int",
+                    "slot":0,
+                    "lhs":{
+                      "id":20,
+                      "kind":"Variable",
+                      "line":5, "col":9,
+                      "name":"sum",
+                      "type":"int",
+                      "slot":0,
+                      "children":[]
+                    },
+                    "rhs":{
+                      "id":21,
+                      "kind":"Binary",
+                      "line":5, "col":19,
+                      "op":"+",
+                      "type":"int",
+                      "lhs":{
+                        "id":22,
+                        "kind":"Variable",
+                        "line":5, "col":15,
+                        "name":"sum",
+                        "type":"int",
+                        "slot":0,
+                        "children":[]
+                      },
+                      "rhs":{
+                        "id":23,
+                        "kind":"Variable",
+                        "line":5, "col":21,
+                        "name":"i",
+                        "type":"int",
+                        "slot":1,
+                        "children":[]
+                      },
+                      "children":[
+                        {
+                          "id":22,
+                          "kind":"Variable",
+                          "line":5, "col":15,
+                          "name":"sum",
+                          "type":"int",
+                          "slot":0,
+                          "children":[]
+                        },
+                        {
+                          "id":23,
+                          "kind":"Variable",
+                          "line":5, "col":21,
+                          "name":"i",
+                          "type":"int",
+                          "slot":1,
+                          "children":[]
+                        }
+                      ]
+                    },
+                    "children":[
+                      {
+                        "id":20,
+                        "kind":"Variable",
+                        "line":5, "col":9,
+                        "name":"sum",
+                        "type":"int",
+                        "slot":0,
+                        "children":[]
+                      },
+                      {
+                        "id":21,
+                        "kind":"Binary",
+                        "line":5, "col":19,
+                        "op":"+",
+                        "type":"int",
+                        "lhs":{
+                          "id":22,
+                          "kind":"Variable",
+                          "line":5, "col":15,
+                          "name":"sum",
+                          "type":"int",
+                          "slot":0,
+                          "children":[]
+                        },
+                        "rhs":{
+                          "id":23,
+                          "kind":"Variable",
+                          "line":5, "col":21,
+                          "name":"i",
+                          "type":"int",
+                          "slot":1,
+                          "children":[]
+                        },
+                        "children":[
+                          {
+                            "id":22,
+                            "kind":"Variable",
+                            "line":5, "col":15,
+                            "name":"sum",
+                            "type":"int",
+                            "slot":0,
+                            "children":[]
+                          },
+                          {
+                            "id":23,
+                            "kind":"Variable",
+                            "line":5, "col":21,
+                            "name":"i",
+                            "type":"int",
+                            "slot":1,
+                            "children":[]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "children":[
+                    {
+                      "id":19,
+                      "kind":"Assign",
+                      "line":5, "col":13,
+                      "type":"int",
+                      "slot":0,
+                      "lhs":{
+                        "id":20,
+                        "kind":"Variable",
+                        "line":5, "col":9,
+                        "name":"sum",
+                        "type":"int",
+                        "slot":0,
+                        "children":[]
+                      },
+                      "rhs":{
+                        "id":21,
+                        "kind":"Binary",
+                        "line":5, "col":19,
+                        "op":"+",
+                        "type":"int",
+                        "lhs":{
+                          "id":22,
+                          "kind":"Variable",
+                          "line":5, "col":15,
+                          "name":"sum",
+                          "type":"int",
+                          "slot":0,
+                          "children":[]
+                        },
+                        "rhs":{
+                          "id":23,
+                          "kind":"Variable",
+                          "line":5, "col":21,
+                          "name":"i",
+                          "type":"int",
+                          "slot":1,
+                          "children":[]
+                        },
+                        "children":[
+                          {
+                            "id":22,
+                            "kind":"Variable",
+                            "line":5, "col":15,
+                            "name":"sum",
+                            "type":"int",
+                            "slot":0,
+                            "children":[]
+                          },
+                          {
+                            "id":23,
+                            "kind":"Variable",
+                            "line":5, "col":21,
+                            "name":"i",
+                            "type":"int",
+                            "slot":1,
+                            "children":[]
+                          }
+                        ]
+                      },
+                      "children":[
+                        {
+                          "id":20,
+                          "kind":"Variable",
+                          "line":5, "col":9,
+                          "name":"sum",
+                          "type":"int",
+                          "slot":0,
+                          "children":[]
+                        },
+                        {
+                          "id":21,
+                          "kind":"Binary",
+                          "line":5, "col":19,
+                          "op":"+",
+                          "type":"int",
+                          "lhs":{
+                            "id":22,
+                            "kind":"Variable",
+                            "line":5, "col":15,
+                            "name":"sum",
+                            "type":"int",
+                            "slot":0,
+                            "children":[]
+                          },
+                          "rhs":{
+                            "id":23,
+                            "kind":"Variable",
+                            "line":5, "col":21,
+                            "name":"i",
+                            "type":"int",
+                            "slot":1,
+                            "children":[]
+                          },
+                          "children":[
+                            {
+                              "id":22,
+                              "kind":"Variable",
+                              "line":5, "col":15,
+                              "name":"sum",
+                              "type":"int",
+                              "slot":0,
+                              "children":[]
+                            },
+                            {
+                              "id":23,
+                              "kind":"Variable",
+                              "line":5, "col":21,
+                              "name":"i",
+                              "type":"int",
+                              "slot":1,
+                              "children":[]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "children":[
+              {
+                "id":7,
+                "kind":"Binary",
+                "line":4, "col":23,
+                "op":"<=",
+                "type":"int",
+                "lhs":{
+                  "id":8,
+                  "kind":"Variable",
+                  "line":4, "col":21,
+                  "name":"i",
+                  "type":"int",
+                  "slot":1,
+                  "children":[]
+                },
+                "rhs":{
+                  "id":9,
+                  "kind":"IntLiteral",
+                  "line":4, "col":26,
+                  "value":4,
+                  "type":"int",
+                  "children":[]
+                },
+                "children":[
+                  {
+                    "id":8,
+                    "kind":"Variable",
+                    "line":4, "col":21,
+                    "name":"i",
+                    "type":"int",
+                    "slot":1,
+                    "children":[]
+                  },
+                  {
+                    "id":9,
+                    "kind":"IntLiteral",
+                    "line":4, "col":26,
+                    "value":4,
+                    "type":"int",
+                    "children":[]
+                  }
+                ]
+              },
+              {
+                "id":10,
+                "kind":"Declaration",
+                "line":4, "col":14,
+                "name":"i",
+                "type":"int",
+                "slot":1,
+                "rhs":{
+                  "id":11,
+                  "kind":"IntLiteral",
+                  "line":4, "col":18,
+                  "value":1,
+                  "type":"int",
+                  "children":[]
+                },
+                "children":[
+                  {
+                    "id":11,
+                    "kind":"IntLiteral",
+                    "line":4, "col":18,
+                    "value":1,
+                    "type":"int",
+                    "children":[]
+                  }
+                ]
+              },
+              {
+                "id":12,
+                "kind":"Assign",
+                "line":4, "col":31,
+                "type":"int",
+                "slot":1,
+                "lhs":{
+                  "id":13,
+                  "kind":"Variable",
+                  "line":4, "col":29,
+                  "name":"i",
+                  "type":"int",
+                  "slot":1,
+                  "children":[]
+                },
+                "rhs":{
+                  "id":14,
+                  "kind":"Binary",
+                  "line":4, "col":35,
+                  "op":"+",
+                  "type":"int",
+                  "lhs":{
+                    "id":15,
+                    "kind":"Variable",
+                    "line":4, "col":33,
+                    "name":"i",
+                    "type":"int",
+                    "slot":1,
+                    "children":[]
+                  },
+                  "rhs":{
+                    "id":16,
+                    "kind":"IntLiteral",
+                    "line":4, "col":37,
+                    "value":1,
+                    "type":"int",
+                    "children":[]
+                  },
+                  "children":[
+                    {
+                      "id":15,
+                      "kind":"Variable",
+                      "line":4, "col":33,
+                      "name":"i",
+                      "type":"int",
+                      "slot":1,
+                      "children":[]
+                    },
+                    {
+                      "id":16,
+                      "kind":"IntLiteral",
+                      "line":4, "col":37,
+                      "value":1,
+                      "type":"int",
+                      "children":[]
+                    }
+                  ]
+                },
+                "children":[
+                  {
+                    "id":13,
+                    "kind":"Variable",
+                    "line":4, "col":29,
+                    "name":"i",
+                    "type":"int",
+                    "slot":1,
+                    "children":[]
+                  },
+                  {
+                    "id":14,
+                    "kind":"Binary",
+                    "line":4, "col":35,
+                    "op":"+",
+                    "type":"int",
+                    "lhs":{
+                      "id":15,
+                      "kind":"Variable",
+                      "line":4, "col":33,
+                      "name":"i",
+                      "type":"int",
+                      "slot":1,
+                      "children":[]
+                    },
+                    "rhs":{
+                      "id":16,
+                      "kind":"IntLiteral",
+                      "line":4, "col":37,
+                      "value":1,
+                      "type":"int",
+                      "children":[]
+                    },
+                    "children":[
+                      {
+                        "id":15,
+                        "kind":"Variable",
+                        "line":4, "col":33,
+                        "name":"i",
+                        "type":"int",
+                        "slot":1,
+                        "children":[]
+                      },
+                      {
+                        "id":16,
+                        "kind":"IntLiteral",
+                        "line":4, "col":37,
+                        "value":1,
+                        "type":"int",
+                        "children":[]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id":17,
+                "kind":"Block",
+                "line":4, "col":40,
+                "children":[
+                  {
+                    "id":18,
+                    "kind":"ExpressionStatement",
+                    "line":5, "col":9,
+                    "rhs":{
+                      "id":19,
+                      "kind":"Assign",
+                      "line":5, "col":13,
+                      "type":"int",
+                      "slot":0,
+                      "lhs":{
+                        "id":20,
+                        "kind":"Variable",
+                        "line":5, "col":9,
+                        "name":"sum",
+                        "type":"int",
+                        "slot":0,
+                        "children":[]
+                      },
+                      "rhs":{
+                        "id":21,
+                        "kind":"Binary",
+                        "line":5, "col":19,
+                        "op":"+",
+                        "type":"int",
+                        "lhs":{
+                          "id":22,
+                          "kind":"Variable",
+                          "line":5, "col":15,
+                          "name":"sum",
+                          "type":"int",
+                          "slot":0,
+                          "children":[]
+                        },
+                        "rhs":{
+                          "id":23,
+                          "kind":"Variable",
+                          "line":5, "col":21,
+                          "name":"i",
+                          "type":"int",
+                          "slot":1,
+                          "children":[]
+                        },
+                        "children":[
+                          {
+                            "id":22,
+                            "kind":"Variable",
+                            "line":5, "col":15,
+                            "name":"sum",
+                            "type":"int",
+                            "slot":0,
+                            "children":[]
+                          },
+                          {
+                            "id":23,
+                            "kind":"Variable",
+                            "line":5, "col":21,
+                            "name":"i",
+                            "type":"int",
+                            "slot":1,
+                            "children":[]
+                          }
+                        ]
+                      },
+                      "children":[
+                        {
+                          "id":20,
+                          "kind":"Variable",
+                          "line":5, "col":9,
+                          "name":"sum",
+                          "type":"int",
+                          "slot":0,
+                          "children":[]
+                        },
+                        {
+                          "id":21,
+                          "kind":"Binary",
+                          "line":5, "col":19,
+                          "op":"+",
+                          "type":"int",
+                          "lhs":{
+                            "id":22,
+                            "kind":"Variable",
+                            "line":5, "col":15,
+                            "name":"sum",
+                            "type":"int",
+                            "slot":0,
+                            "children":[]
+                          },
+                          "rhs":{
+                            "id":23,
+                            "kind":"Variable",
+                            "line":5, "col":21,
+                            "name":"i",
+                            "type":"int",
+                            "slot":1,
+                            "children":[]
+                          },
+                          "children":[
+                            {
+                              "id":22,
+                              "kind":"Variable",
+                              "line":5, "col":15,
+                              "name":"sum",
+                              "type":"int",
+                              "slot":0,
+                              "children":[]
+                            },
+                            {
+                              "id":23,
+                              "kind":"Variable",
+                              "line":5, "col":21,
+                              "name":"i",
+                              "type":"int",
+                              "slot":1,
+                              "children":[]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "children":[
+                      {
+                        "id":19,
+                        "kind":"Assign",
+                        "line":5, "col":13,
+                        "type":"int",
+                        "slot":0,
+                        "lhs":{
+                          "id":20,
+                          "kind":"Variable",
+                          "line":5, "col":9,
+                          "name":"sum",
+                          "type":"int",
+                          "slot":0,
+                          "children":[]
+                        },
+                        "rhs":{
+                          "id":21,
+                          "kind":"Binary",
+                          "line":5, "col":19,
+                          "op":"+",
+                          "type":"int",
+                          "lhs":{
+                            "id":22,
+                            "kind":"Variable",
+                            "line":5, "col":15,
+                            "name":"sum",
+                            "type":"int",
+                            "slot":0,
+                            "children":[]
+                          },
+                          "rhs":{
+                            "id":23,
+                            "kind":"Variable",
+                            "line":5, "col":21,
+                            "name":"i",
+                            "type":"int",
+                            "slot":1,
+                            "children":[]
+                          },
+                          "children":[
+                            {
+                              "id":22,
+                              "kind":"Variable",
+                              "line":5, "col":15,
+                              "name":"sum",
+                              "type":"int",
+                              "slot":0,
+                              "children":[]
+                            },
+                            {
+                              "id":23,
+                              "kind":"Variable",
+                              "line":5, "col":21,
+                              "name":"i",
+                              "type":"int",
+                              "slot":1,
+                              "children":[]
+                            }
+                          ]
+                        },
+                        "children":[
+                          {
+                            "id":20,
+                            "kind":"Variable",
+                            "line":5, "col":9,
+                            "name":"sum",
+                            "type":"int",
+                            "slot":0,
+                            "children":[]
+                          },
+                          {
+                            "id":21,
+                            "kind":"Binary",
+                            "line":5, "col":19,
+                            "op":"+",
+                            "type":"int",
+                            "lhs":{
+                              "id":22,
+                              "kind":"Variable",
+                              "line":5, "col":15,
+                              "name":"sum",
+                              "type":"int",
+                              "slot":0,
+                              "children":[]
+                            },
+                            "rhs":{
+                              "id":23,
+                              "kind":"Variable",
+                              "line":5, "col":21,
+                              "name":"i",
+                              "type":"int",
+                              "slot":1,
+                              "children":[]
+                            },
+                            "children":[
+                              {
+                                "id":22,
+                                "kind":"Variable",
+                                "line":5, "col":15,
+                                "name":"sum",
+                                "type":"int",
+                                "slot":0,
+                                "children":[]
+                              },
+                              {
+                                "id":23,
+                                "kind":"Variable",
+                                "line":5, "col":21,
+                                "name":"i",
+                                "type":"int",
+                                "slot":1,
+                                "children":[]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id":24,
+            "kind":"Return",
+            "line":8, "col":5,
+            "rhs":{
+              "id":25,
+              "kind":"Variable",
+              "line":8, "col":12,
+              "name":"sum",
+              "type":"int",
+              "slot":0,
+              "children":[]
+            },
+            "children":[
+              {
+                "id":25,
+                "kind":"Variable",
+                "line":8, "col":12,
+                "name":"sum",
+                "type":"int",
+                "slot":0,
+                "children":[]
+              }
+            ]
+          }
+        ]
+      },
+      "children":[
+        {
+          "id":3,
+          "kind":"Block",
+          "line":1, "col":12,
+          "children":[
+            {
+              "id":4,
+              "kind":"Declaration",
+              "line":2, "col":9,
+              "name":"sum",
+              "type":"int",
+              "slot":0,
+              "rhs":{
+                "id":5,
+                "kind":"IntLiteral",
+                "line":2, "col":15,
+                "value":0,
+                "type":"int",
+                "children":[]
+              },
+              "children":[
+                {
+                  "id":5,
+                  "kind":"IntLiteral",
+                  "line":2, "col":15,
+                  "value":0,
+                  "type":"int",
+                  "children":[]
+                }
+              ]
+            },
+            {
+              "id":6,
+              "kind":"For",
+              "line":4, "col":5,
+              "condition":{
+                "id":7,
+                "kind":"Binary",
+                "line":4, "col":23,
+                "op":"<=",
+                "type":"int",
+                "lhs":{
+                  "id":8,
+                  "kind":"Variable",
+                  "line":4, "col":21,
+                  "name":"i",
+                  "type":"int",
+                  "slot":1,
+                  "children":[]
+                },
+                "rhs":{
+                  "id":9,
+                  "kind":"IntLiteral",
+                  "line":4, "col":26,
+                  "value":4,
+                  "type":"int",
+                  "children":[]
+                },
+                "children":[
+                  {
+                    "id":8,
+                    "kind":"Variable",
+                    "line":4, "col":21,
+                    "name":"i",
+                    "type":"int",
+                    "slot":1,
+                    "children":[]
+                  },
+                  {
+                    "id":9,
+                    "kind":"IntLiteral",
+                    "line":4, "col":26,
+                    "value":4,
+                    "type":"int",
+                    "children":[]
+                  }
+                ]
+              },
+              "init":{
+                "id":10,
+                "kind":"Declaration",
+                "line":4, "col":14,
+                "name":"i",
+                "type":"int",
+                "slot":1,
+                "rhs":{
+                  "id":11,
+                  "kind":"IntLiteral",
+                  "line":4, "col":18,
+                  "value":1,
+                  "type":"int",
+                  "children":[]
+                },
+                "children":[
+                  {
+                    "id":11,
+                    "kind":"IntLiteral",
+                    "line":4, "col":18,
+                    "value":1,
+                    "type":"int",
+                    "children":[]
+                  }
+                ]
+              },
+              "step":{
+                "id":12,
+                "kind":"Assign",
+                "line":4, "col":31,
+                "type":"int",
+                "slot":1,
+                "lhs":{
+                  "id":13,
+                  "kind":"Variable",
+                  "line":4, "col":29,
+                  "name":"i",
+                  "type":"int",
+                  "slot":1,
+                  "children":[]
+                },
+                "rhs":{
+                  "id":14,
+                  "kind":"Binary",
+                  "line":4, "col":35,
+                  "op":"+",
+                  "type":"int",
+                  "lhs":{
+                    "id":15,
+                    "kind":"Variable",
+                    "line":4, "col":33,
+                    "name":"i",
+                    "type":"int",
+                    "slot":1,
+                    "children":[]
+                  },
+                  "rhs":{
+                    "id":16,
+                    "kind":"IntLiteral",
+                    "line":4, "col":37,
+                    "value":1,
+                    "type":"int",
+                    "children":[]
+                  },
+                  "children":[
+                    {
+                      "id":15,
+                      "kind":"Variable",
+                      "line":4, "col":33,
+                      "name":"i",
+                      "type":"int",
+                      "slot":1,
+                      "children":[]
+                    },
+                    {
+                      "id":16,
+                      "kind":"IntLiteral",
+                      "line":4, "col":37,
+                      "value":1,
+                      "type":"int",
+                      "children":[]
+                    }
+                  ]
+                },
+                "children":[
+                  {
+                    "id":13,
+                    "kind":"Variable",
+                    "line":4, "col":29,
+                    "name":"i",
+                    "type":"int",
+                    "slot":1,
+                    "children":[]
+                  },
+                  {
+                    "id":14,
+                    "kind":"Binary",
+                    "line":4, "col":35,
+                    "op":"+",
+                    "type":"int",
+                    "lhs":{
+                      "id":15,
+                      "kind":"Variable",
+                      "line":4, "col":33,
+                      "name":"i",
+                      "type":"int",
+                      "slot":1,
+                      "children":[]
+                    },
+                    "rhs":{
+                      "id":16,
+                      "kind":"IntLiteral",
+                      "line":4, "col":37,
+                      "value":1,
+                      "type":"int",
+                      "children":[]
+                    },
+                    "children":[
+                      {
+                        "id":15,
+                        "kind":"Variable",
+                        "line":4, "col":33,
+                        "name":"i",
+                        "type":"int",
+                        "slot":1,
+                        "children":[]
+                      },
+                      {
+                        "id":16,
+                        "kind":"IntLiteral",
+                        "line":4, "col":37,
+                        "value":1,
+                        "type":"int",
+                        "children":[]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "body":{
+                "id":17,
+                "kind":"Block",
+                "line":4, "col":40,
+                "children":[
+                  {
+                    "id":18,
+                    "kind":"ExpressionStatement",
+                    "line":5, "col":9,
+                    "rhs":{
+                      "id":19,
+                      "kind":"Assign",
+                      "line":5, "col":13,
+                      "type":"int",
+                      "slot":0,
+                      "lhs":{
+                        "id":20,
+                        "kind":"Variable",
+                        "line":5, "col":9,
+                        "name":"sum",
+                        "type":"int",
+                        "slot":0,
+                        "children":[]
+                      },
+                      "rhs":{
+                        "id":21,
+                        "kind":"Binary",
+                        "line":5, "col":19,
+                        "op":"+",
+                        "type":"int",
+                        "lhs":{
+                          "id":22,
+                          "kind":"Variable",
+                          "line":5, "col":15,
+                          "name":"sum",
+                          "type":"int",
+                          "slot":0,
+                          "children":[]
+                        },
+                        "rhs":{
+                          "id":23,
+                          "kind":"Variable",
+                          "line":5, "col":21,
+                          "name":"i",
+                          "type":"int",
+                          "slot":1,
+                          "children":[]
+                        },
+                        "children":[
+                          {
+                            "id":22,
+                            "kind":"Variable",
+                            "line":5, "col":15,
+                            "name":"sum",
+                            "type":"int",
+                            "slot":0,
+                            "children":[]
+                          },
+                          {
+                            "id":23,
+                            "kind":"Variable",
+                            "line":5, "col":21,
+                            "name":"i",
+                            "type":"int",
+                            "slot":1,
+                            "children":[]
+                          }
+                        ]
+                      },
+                      "children":[
+                        {
+                          "id":20,
+                          "kind":"Variable",
+                          "line":5, "col":9,
+                          "name":"sum",
+                          "type":"int",
+                          "slot":0,
+                          "children":[]
+                        },
+                        {
+                          "id":21,
+                          "kind":"Binary",
+                          "line":5, "col":19,
+                          "op":"+",
+                          "type":"int",
+                          "lhs":{
+                            "id":22,
+                            "kind":"Variable",
+                            "line":5, "col":15,
+                            "name":"sum",
+                            "type":"int",
+                            "slot":0,
+                            "children":[]
+                          },
+                          "rhs":{
+                            "id":23,
+                            "kind":"Variable",
+                            "line":5, "col":21,
+                            "name":"i",
+                            "type":"int",
+                            "slot":1,
+                            "children":[]
+                          },
+                          "children":[
+                            {
+                              "id":22,
+                              "kind":"Variable",
+                              "line":5, "col":15,
+                              "name":"sum",
+                              "type":"int",
+                              "slot":0,
+                              "children":[]
+                            },
+                            {
+                              "id":23,
+                              "kind":"Variable",
+                              "line":5, "col":21,
+                              "name":"i",
+                              "type":"int",
+                              "slot":1,
+                              "children":[]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "children":[
+                      {
+                        "id":19,
+                        "kind":"Assign",
+                        "line":5, "col":13,
+                        "type":"int",
+                        "slot":0,
+                        "lhs":{
+                          "id":20,
+                          "kind":"Variable",
+                          "line":5, "col":9,
+                          "name":"sum",
+                          "type":"int",
+                          "slot":0,
+                          "children":[]
+                        },
+                        "rhs":{
+                          "id":21,
+                          "kind":"Binary",
+                          "line":5, "col":19,
+                          "op":"+",
+                          "type":"int",
+                          "lhs":{
+                            "id":22,
+                            "kind":"Variable",
+                            "line":5, "col":15,
+                            "name":"sum",
+                            "type":"int",
+                            "slot":0,
+                            "children":[]
+                          },
+                          "rhs":{
+                            "id":23,
+                            "kind":"Variable",
+                            "line":5, "col":21,
+                            "name":"i",
+                            "type":"int",
+                            "slot":1,
+                            "children":[]
+                          },
+                          "children":[
+                            {
+                              "id":22,
+                              "kind":"Variable",
+                              "line":5, "col":15,
+                              "name":"sum",
+                              "type":"int",
+                              "slot":0,
+                              "children":[]
+                            },
+                            {
+                              "id":23,
+                              "kind":"Variable",
+                              "line":5, "col":21,
+                              "name":"i",
+                              "type":"int",
+                              "slot":1,
+                              "children":[]
+                            }
+                          ]
+                        },
+                        "children":[
+                          {
+                            "id":20,
+                            "kind":"Variable",
+                            "line":5, "col":9,
+                            "name":"sum",
+                            "type":"int",
+                            "slot":0,
+                            "children":[]
+                          },
+                          {
+                            "id":21,
+                            "kind":"Binary",
+                            "line":5, "col":19,
+                            "op":"+",
+                            "type":"int",
+                            "lhs":{
+                              "id":22,
+                              "kind":"Variable",
+                              "line":5, "col":15,
+                              "name":"sum",
+                              "type":"int",
+                              "slot":0,
+                              "children":[]
+                            },
+                            "rhs":{
+                              "id":23,
+                              "kind":"Variable",
+                              "line":5, "col":21,
+                              "name":"i",
+                              "type":"int",
+                              "slot":1,
+                              "children":[]
+                            },
+                            "children":[
+                              {
+                                "id":22,
+                                "kind":"Variable",
+                                "line":5, "col":15,
+                                "name":"sum",
+                                "type":"int",
+                                "slot":0,
+                                "children":[]
+                              },
+                              {
+                                "id":23,
+                                "kind":"Variable",
+                                "line":5, "col":21,
+                                "name":"i",
+                                "type":"int",
+                                "slot":1,
+                                "children":[]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              "children":[
+                {
+                  "id":7,
+                  "kind":"Binary",
+                  "line":4, "col":23,
+                  "op":"<=",
+                  "type":"int",
+                  "lhs":{
+                    "id":8,
+                    "kind":"Variable",
+                    "line":4, "col":21,
+                    "name":"i",
+                    "type":"int",
+                    "slot":1,
+                    "children":[]
+                  },
+                  "rhs":{
+                    "id":9,
+                    "kind":"IntLiteral",
+                    "line":4, "col":26,
+                    "value":4,
+                    "type":"int",
+                    "children":[]
+                  },
+                  "children":[
+                    {
+                      "id":8,
+                      "kind":"Variable",
+                      "line":4, "col":21,
+                      "name":"i",
+                      "type":"int",
+                      "slot":1,
+                      "children":[]
+                    },
+                    {
+                      "id":9,
+                      "kind":"IntLiteral",
+                      "line":4, "col":26,
+                      "value":4,
+                      "type":"int",
+                      "children":[]
+                    }
+                  ]
+                },
+                {
+                  "id":10,
+                  "kind":"Declaration",
+                  "line":4, "col":14,
+                  "name":"i",
+                  "type":"int",
+                  "slot":1,
+                  "rhs":{
+                    "id":11,
+                    "kind":"IntLiteral",
+                    "line":4, "col":18,
+                    "value":1,
+                    "type":"int",
+                    "children":[]
+                  },
+                  "children":[
+                    {
+                      "id":11,
+                      "kind":"IntLiteral",
+                      "line":4, "col":18,
+                      "value":1,
+                      "type":"int",
+                      "children":[]
+                    }
+                  ]
+                },
+                {
+                  "id":12,
+                  "kind":"Assign",
+                  "line":4, "col":31,
+                  "type":"int",
+                  "slot":1,
+                  "lhs":{
+                    "id":13,
+                    "kind":"Variable",
+                    "line":4, "col":29,
+                    "name":"i",
+                    "type":"int",
+                    "slot":1,
+                    "children":[]
+                  },
+                  "rhs":{
+                    "id":14,
+                    "kind":"Binary",
+                    "line":4, "col":35,
+                    "op":"+",
+                    "type":"int",
+                    "lhs":{
+                      "id":15,
+                      "kind":"Variable",
+                      "line":4, "col":33,
+                      "name":"i",
+                      "type":"int",
+                      "slot":1,
+                      "children":[]
+                    },
+                    "rhs":{
+                      "id":16,
+                      "kind":"IntLiteral",
+                      "line":4, "col":37,
+                      "value":1,
+                      "type":"int",
+                      "children":[]
+                    },
+                    "children":[
+                      {
+                        "id":15,
+                        "kind":"Variable",
+                        "line":4, "col":33,
+                        "name":"i",
+                        "type":"int",
+                        "slot":1,
+                        "children":[]
+                      },
+                      {
+                        "id":16,
+                        "kind":"IntLiteral",
+                        "line":4, "col":37,
+                        "value":1,
+                        "type":"int",
+                        "children":[]
+                      }
+                    ]
+                  },
+                  "children":[
+                    {
+                      "id":13,
+                      "kind":"Variable",
+                      "line":4, "col":29,
+                      "name":"i",
+                      "type":"int",
+                      "slot":1,
+                      "children":[]
+                    },
+                    {
+                      "id":14,
+                      "kind":"Binary",
+                      "line":4, "col":35,
+                      "op":"+",
+                      "type":"int",
+                      "lhs":{
+                        "id":15,
+                        "kind":"Variable",
+                        "line":4, "col":33,
+                        "name":"i",
+                        "type":"int",
+                        "slot":1,
+                        "children":[]
+                      },
+                      "rhs":{
+                        "id":16,
+                        "kind":"IntLiteral",
+                        "line":4, "col":37,
+                        "value":1,
+                        "type":"int",
+                        "children":[]
+                      },
+                      "children":[
+                        {
+                          "id":15,
+                          "kind":"Variable",
+                          "line":4, "col":33,
+                          "name":"i",
+                          "type":"int",
+                          "slot":1,
+                          "children":[]
+                        },
+                        {
+                          "id":16,
+                          "kind":"IntLiteral",
+                          "line":4, "col":37,
+                          "value":1,
+                          "type":"int",
+                          "children":[]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id":17,
+                  "kind":"Block",
+                  "line":4, "col":40,
+                  "children":[
+                    {
+                      "id":18,
+                      "kind":"ExpressionStatement",
+                      "line":5, "col":9,
+                      "rhs":{
+                        "id":19,
+                        "kind":"Assign",
+                        "line":5, "col":13,
+                        "type":"int",
+                        "slot":0,
+                        "lhs":{
+                          "id":20,
+                          "kind":"Variable",
+                          "line":5, "col":9,
+                          "name":"sum",
+                          "type":"int",
+                          "slot":0,
+                          "children":[]
+                        },
+                        "rhs":{
+                          "id":21,
+                          "kind":"Binary",
+                          "line":5, "col":19,
+                          "op":"+",
+                          "type":"int",
+                          "lhs":{
+                            "id":22,
+                            "kind":"Variable",
+                            "line":5, "col":15,
+                            "name":"sum",
+                            "type":"int",
+                            "slot":0,
+                            "children":[]
+                          },
+                          "rhs":{
+                            "id":23,
+                            "kind":"Variable",
+                            "line":5, "col":21,
+                            "name":"i",
+                            "type":"int",
+                            "slot":1,
+                            "children":[]
+                          },
+                          "children":[
+                            {
+                              "id":22,
+                              "kind":"Variable",
+                              "line":5, "col":15,
+                              "name":"sum",
+                              "type":"int",
+                              "slot":0,
+                              "children":[]
+                            },
+                            {
+                              "id":23,
+                              "kind":"Variable",
+                              "line":5, "col":21,
+                              "name":"i",
+                              "type":"int",
+                              "slot":1,
+                              "children":[]
+                            }
+                          ]
+                        },
+                        "children":[
+                          {
+                            "id":20,
+                            "kind":"Variable",
+                            "line":5, "col":9,
+                            "name":"sum",
+                            "type":"int",
+                            "slot":0,
+                            "children":[]
+                          },
+                          {
+                            "id":21,
+                            "kind":"Binary",
+                            "line":5, "col":19,
+                            "op":"+",
+                            "type":"int",
+                            "lhs":{
+                              "id":22,
+                              "kind":"Variable",
+                              "line":5, "col":15,
+                              "name":"sum",
+                              "type":"int",
+                              "slot":0,
+                              "children":[]
+                            },
+                            "rhs":{
+                              "id":23,
+                              "kind":"Variable",
+                              "line":5, "col":21,
+                              "name":"i",
+                              "type":"int",
+                              "slot":1,
+                              "children":[]
+                            },
+                            "children":[
+                              {
+                                "id":22,
+                                "kind":"Variable",
+                                "line":5, "col":15,
+                                "name":"sum",
+                                "type":"int",
+                                "slot":0,
+                                "children":[]
+                              },
+                              {
+                                "id":23,
+                                "kind":"Variable",
+                                "line":5, "col":21,
+                                "name":"i",
+                                "type":"int",
+                                "slot":1,
+                                "children":[]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "children":[
+                        {
+                          "id":19,
+                          "kind":"Assign",
+                          "line":5, "col":13,
+                          "type":"int",
+                          "slot":0,
+                          "lhs":{
+                            "id":20,
+                            "kind":"Variable",
+                            "line":5, "col":9,
+                            "name":"sum",
+                            "type":"int",
+                            "slot":0,
+                            "children":[]
+                          },
+                          "rhs":{
+                            "id":21,
+                            "kind":"Binary",
+                            "line":5, "col":19,
+                            "op":"+",
+                            "type":"int",
+                            "lhs":{
+                              "id":22,
+                              "kind":"Variable",
+                              "line":5, "col":15,
+                              "name":"sum",
+                              "type":"int",
+                              "slot":0,
+                              "children":[]
+                            },
+                            "rhs":{
+                              "id":23,
+                              "kind":"Variable",
+                              "line":5, "col":21,
+                              "name":"i",
+                              "type":"int",
+                              "slot":1,
+                              "children":[]
+                            },
+                            "children":[
+                              {
+                                "id":22,
+                                "kind":"Variable",
+                                "line":5, "col":15,
+                                "name":"sum",
+                                "type":"int",
+                                "slot":0,
+                                "children":[]
+                              },
+                              {
+                                "id":23,
+                                "kind":"Variable",
+                                "line":5, "col":21,
+                                "name":"i",
+                                "type":"int",
+                                "slot":1,
+                                "children":[]
+                              }
+                            ]
+                          },
+                          "children":[
+                            {
+                              "id":20,
+                              "kind":"Variable",
+                              "line":5, "col":9,
+                              "name":"sum",
+                              "type":"int",
+                              "slot":0,
+                              "children":[]
+                            },
+                            {
+                              "id":21,
+                              "kind":"Binary",
+                              "line":5, "col":19,
+                              "op":"+",
+                              "type":"int",
+                              "lhs":{
+                                "id":22,
+                                "kind":"Variable",
+                                "line":5, "col":15,
+                                "name":"sum",
+                                "type":"int",
+                                "slot":0,
+                                "children":[]
+                              },
+                              "rhs":{
+                                "id":23,
+                                "kind":"Variable",
+                                "line":5, "col":21,
+                                "name":"i",
+                                "type":"int",
+                                "slot":1,
+                                "children":[]
+                              },
+                              "children":[
+                                {
+                                  "id":22,
+                                  "kind":"Variable",
+                                  "line":5, "col":15,
+                                  "name":"sum",
+                                  "type":"int",
+                                  "slot":0,
+                                  "children":[]
+                                },
+                                {
+                                  "id":23,
+                                  "kind":"Variable",
+                                  "line":5, "col":21,
+                                  "name":"i",
+                                  "type":"int",
+                                  "slot":1,
+                                  "children":[]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id":24,
+              "kind":"Return",
+              "line":8, "col":5,
+              "rhs":{
+                "id":25,
+                "kind":"Variable",
+                "line":8, "col":12,
+                "name":"sum",
+                "type":"int",
+                "slot":0,
+                "children":[]
+              },
+              "children":[
+                {
+                  "id":25,
+                  "kind":"Variable",
+                  "line":8, "col":12,
+                  "name":"sum",
+                  "type":"int",
+                  "slot":0,
+                  "children":[]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

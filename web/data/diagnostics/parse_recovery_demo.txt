@@ -1,0 +1,5 @@
+parse error line 3 col 5: expected ';', got KW_IF 'if'
+parse error line 3 col 15: expected ')', got { '{'
+parse error line 5 col 5: expected ';', got } '}'
+parse error line 6 col 18: expected ')', got { '{'
+parse error line 10 col 1: expected ';', got } '}'

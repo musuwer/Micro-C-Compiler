@@ -1,0 +1,6 @@
+[
+  {"name":"total", "type":"int", "scopeDepth":1, "slot":0, "declLine":2, "scope_depth":1, "decl_line":2, "initialized":true, "used":true},
+  {"name":"i", "type":"int", "scopeDepth":2, "slot":1, "declLine":4, "scope_depth":2, "decl_line":4, "initialized":true, "used":true},
+  {"name":"j", "type":"int", "scopeDepth":1, "slot":2, "declLine":12, "scope_depth":1, "decl_line":12, "initialized":true, "used":true},
+  {"name":"add", "type":"int", "scopeDepth":3, "slot":3, "declLine":15, "scope_depth":3, "decl_line":15, "initialized":true, "used":true}
+]

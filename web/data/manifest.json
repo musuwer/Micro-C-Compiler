@@ -1,0 +1,8 @@
+{
+  "id": "ast_complex_demo",
+  "title": "Complex control-flow AST",
+  "source": "examples/ast_complex_demo.mc",
+  "expectedReturn": 20,
+  "featureB": "parser error recovery with multi-error collection",
+  "featureC": "interactive AST tree with source-line and token-range highlighting"
+}

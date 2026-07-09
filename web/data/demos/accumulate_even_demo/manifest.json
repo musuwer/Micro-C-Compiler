@@ -1,0 +1,8 @@
+{
+  "id": "accumulate_even_demo",
+  "title": "Accumulation demo",
+  "source": "examples/accumulate_even_demo.mc",
+  "expectedReturn": 30,
+  "featureB": "parser error recovery with multi-error collection",
+  "featureC": "interactive AST tree with source-line and token-range highlighting"
+}

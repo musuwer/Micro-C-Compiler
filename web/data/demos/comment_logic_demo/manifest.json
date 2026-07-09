@@ -1,0 +1,8 @@
+{
+  "id": "comment_logic_demo",
+  "title": "Comments and logical expressions",
+  "source": "examples/comment_logic_demo.mc",
+  "expectedReturn": 22,
+  "featureB": "parser error recovery with multi-error collection",
+  "featureC": "interactive AST tree with source-line and token-range highlighting"
+}

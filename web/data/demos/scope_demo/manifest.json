@@ -1,0 +1,8 @@
+{
+  "id": "scope_demo",
+  "title": "Scope shadowing",
+  "source": "examples/scope_demo.mc",
+  "expectedReturn": 8,
+  "featureB": "parser error recovery with multi-error collection",
+  "featureC": "interactive AST tree with source-line and token-range highlighting"
+}

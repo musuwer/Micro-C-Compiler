@@ -1,0 +1,4 @@
+[
+  {"name":"a", "type":"int", "scopeDepth":1, "slot":0, "declLine":2, "scope_depth":1, "decl_line":2, "initialized":true, "used":true},
+  {"name":"b", "type":"int", "scopeDepth":1, "slot":1, "declLine":3, "scope_depth":1, "decl_line":3, "initialized":true, "used":true}
+]
