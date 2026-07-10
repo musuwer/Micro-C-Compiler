@@ -6,7 +6,7 @@
 
 ![C](https://img.shields.io/badge/C-C17-blue)
 ![Build](https://img.shields.io/badge/Build-Make-success)
-![Tests](https://img.shields.io/badge/Tests-25%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-36%20passed-brightgreen)
 ![Frontend](https://img.shields.io/badge/Web-Interactive%20AST%20Viewer-purple)
 ![Platform](https://img.shields.io/badge/Platform-WSL2%20%7C%20Linux-lightgrey)
 
@@ -37,7 +37,7 @@
 当前自动测试结果：
 
 ```text
-Test summary: 25 passed, 0 failed
+Test summary: 36 passed, 0 failed
 ```
 
 ---
@@ -74,30 +74,38 @@ VM 字节码 out.bc
 
 ## 4. 当前支持的 MiniC 语法
 
+根据最新代码版本，项目已经从原来的基础 MiniC 子集扩展到支持 `char`、`string`、一维数组以及更完整的数组/字符串语义检查。当前支持内容如下：
+
 | 类别 | 支持内容 | 示例 |
 |---|---|---|
-| 基本类型 | `int`；`float` 的词法识别、AST 表达、符号表记录和类型检查。VM 执行主要以 `int` 为主 | `int a = 1;`、`float rate = 3.14;` |
-| 变量声明 | 普通声明、初始化声明 | `int total = 0;`、`int i;` |
-| 赋值语句 | 变量赋值，右结合赋值表达式 | `total = total + i;` |
-| 算术表达式 | `+`、`-`、`*`、`/`、`%`、括号优先级 | `2 + 3 * 4`、`(2 + 3) * 4` |
-| 关系表达式 | `<`、`<=`、`>`、`>=`、`==`、`!=` | `i < 4`、`total == 20` |
-| 逻辑表达式 | `&&`、`\|\|`、`!` | `total > 15 && j == 3` |
-| 分支语句 | `if-else` | `if (a > 0) { ... } else { ... }` |
-| 循环语句 | `while`、`for` | `while (i < 3)`、`for (i = 0; i < 5; i = i + 1)` |
-| 代码块与作用域 | 嵌套 `{ ... }`，支持内层变量遮蔽外层变量 | `{ int a = 8; return a; }` |
-| 返回语句 | `return expr;` | `return total;` |
-| 空语句 | `;` 和部分 `for` 子句省略 | `for (; i < 3; i = i + 1) ;` |
-| 注释 | 单行注释和多行注释 | `// comment`、`/* comment */` |
+| 基本类型 | 支持 `int`、`float`、`char`、`string` 四类基础类型；`float` 可参与词法识别、AST、符号表、类型推导和当前 VM 的简化数值执行 | `int a = 1;`、`float x = 3.14;`、`char c = 'A';`、`string s = "Micro C";` |
+| 字面量 | 支持整数、浮点数、字符字面量、字符串字面量；字符支持常见转义字符 | `10`、`3.14`、`'A'`、`'\n'`、`"lexer"` |
+| 变量声明 | 支持普通声明和初始化声明 | `int total = 0;`、`char grade = 'A';`、`string name = "Micro C";` |
+| 一维数组声明 | 支持一维定长数组，数组元素类型可为 `int`、`float`、`char`、`string` | `int nums[5];`、`float scores[3];`、`char word[4];`、`string names[3];` |
+| 数组元素读写 | 支持通过下标读写一维数组元素；下标表达式要求为 `int` 或 `char` 类型 | `nums[i] = i + 1;`、`total = total + nums[i];`、`names[0] = "lexer";` |
+| 数组语义检查 | 支持数组大小检查、常量下标越界检查、非数组对象下标访问检查、数组下标类型检查 | `values[3] = 10;`、`value[0] = 3;`、`values[index] = 10;` |
+| 赋值语句 | 支持普通变量赋值和数组元素赋值；类型不兼容时输出语义错误 | `total = total + i;`、`letters[1] = 'B';`、`status = "passed";` |
+| 算术表达式 | 支持 `+`、`-`、`*`、`/`、`%` 和括号优先级；数值类型包含 `int / float / char` | `2 + 3 * 4`、`(10 + 2) * 3 - 6 / 2 + 7 % 4` |
+| 关系表达式 | 支持 `<`、`<=`、`>`、`>=`、`==`、`!=`；字符串主要支持 `==` 和 `!=` 比较 | `i <= 10`、`selected == 'B'`、`labels[0] == "lexer"` |
+| 逻辑表达式 | 支持 `&&`、`\|\|`、`!`，用于组合条件判断 | `total > 30 && selected == 'B'`、`!(total < 0)` |
+| 分支语句 | 支持 `if` 和 `if-else`，可嵌套 | `if (a > 0) { ... } else { ... }` |
+| 循环语句 | 支持 `while`、`for`；`for` 支持声明初始化、表达式初始化和部分子句省略 | `while (i < 3) { ... }`、`for (int i = 0; i < 5; i = i + 1) { ... }` |
+| 代码块与作用域 | 支持嵌套 `{ ... }`，支持内层变量遮蔽外层变量；符号表记录 `scopeDepth` 和 `slot` | `{ int a = 8; return a; }` |
+| 返回语句 | 支持 `return expr;`，返回表达式可来自变量、数组元素、算术/逻辑表达式 | `return total;`、`return word[0];` |
+| 空语句 | 支持单独的 `;`，以及 `for` 子句中的省略写法 | `;`、`for (; i < 3; i = i + 1) { ; }` |
+| 注释 | 支持单行注释和多行注释，词法分析阶段会跳过注释但保持行列号统计 | `// comment`、`/* comment */` |
+| 错误恢复 | Parser 遇到语法错误后可同步到安全边界并继续分析，收集多处 `parse error` | `parse_recovery_demo.mc` |
+| Web 可视化 | 可导出 Token、AST、符号表、TAC、Bytecode，并在 Web 页面展示源码联动 | `tokens.json`、`ast.json`、`symbols.json`、`out.tac`、`out.bc` |
 
 ### 当前暂不支持
 
-当前项目是教学型 MiniC 子集编译器，暂不支持：
+当前项目仍然定位为教学型 MiniC 子集编译器。虽然已经新增 `char`、`string` 和一维数组，但仍暂不支持：
 
 ```text
-数组、指针、结构体、字符串、多函数、函数参数、函数调用、递归函数、预处理器、完整浮点 VM 运算。
+指针、结构体、多维数组、数组初始化列表、数组作为函数参数、多函数、函数参数、函数调用、递归函数、预处理器、字符串拼接、完整浮点运行时模型、完整 C 短路求值语义。
 ```
 
-这些内容工作量较大，已作为后续扩展方向写入报告和文档。
+其中 `float` 当前可以参与词法、语法、语义和简化 VM 执行，但 VM 底层仍以教学型数值槽位模型为主；`string` 当前主要支持声明、赋值、数组元素读写以及 `== / !=` 比较，不支持字符串拼接和复杂字符串运行时。
 
 ---
 
@@ -109,36 +117,48 @@ VM 字节码 out.bc
 ./build/microcc examples/文件名.mc --run
 ```
 
+根据最新 `scripts/run_tests.sh`，当前共有 **20 个正常示例程序** 可编译运行，自动测试总结果为：
+
+```text
+Test summary: 36 passed, 0 failed
+```
+
 | 序号 | 文件 | 覆盖能力 | 期望返回值 |
 |---:|---|---|---:|
-| 1 | `examples/basic_demo.mc` | 基础控制流 | 13 |
-| 2 | `examples/for_demo.mc` | `for` 循环 | 10 |
-| 3 | `examples/scope_demo.mc` | 作用域遮蔽 | 8 |
-| 4 | `examples/comment_logic_demo.mc` | 注释与逻辑表达式 | 22 |
-| 5 | `examples/expression_demo.mc` | 表达式优先级 | 16 |
-| 6 | `examples/ast_complex_demo.mc` | `for + if-else + while + 嵌套块 + 逻辑与` | 20 |
-| 7 | `examples/while_demo.mc` | `while` 循环 | 15 |
-| 8 | `examples/if_else_demo.mc` | `if-else` 分支 | 42 |
-| 9 | `examples/nested_blocks_demo.mc` | 嵌套代码块和作用域 | 19 |
-| 10 | `examples/unary_logic_demo.mc` | 一元运算和逻辑非 | 9 |
+| 1 | `examples/basic_demo.mc` | 基础控制流，`while + if-else + return` | 13 |
+| 2 | `examples/for_demo.mc` | `for` 循环和循环累加 | 10 |
+| 3 | `examples/scope_demo.mc` | 作用域遮蔽，内层变量优先 | 8 |
+| 4 | `examples/comment_logic_demo.mc` | 单行/多行注释、逻辑表达式 | 22 |
+| 5 | `examples/expression_demo.mc` | 表达式优先级，算术、比较、逻辑组合 | 16 |
+| 6 | `examples/ast_complex_demo.mc` | `for + if-else + while + 嵌套块 + 逻辑与` 综合控制流 | 20 |
+| 7 | `examples/while_demo.mc` | `while` 循环累加 | 15 |
+| 8 | `examples/if_else_demo.mc` | `if-else` 分支与逻辑判断 | 42 |
+| 9 | `examples/nested_blocks_demo.mc` | 多层嵌套代码块和作用域 | 19 |
+| 10 | `examples/unary_logic_demo.mc` | 一元负号、逻辑非 `!` | 9 |
 | 11 | `examples/empty_statement_demo.mc` | 空语句和 `for` 省略项 | 3 |
-| 12 | `examples/logic_chain_demo.mc` | 复合逻辑链 | 31 |
-| 13 | `examples/nested_loop_demo.mc` | 嵌套循环 | 18 |
-| 14 | `examples/accumulate_even_demo.mc` | `for + if + %` 累加偶数 | 30 |
+| 12 | `examples/logic_chain_demo.mc` | 复合逻辑链与算术表达式 | 31 |
+| 13 | `examples/nested_loop_demo.mc` | 嵌套 `while` 循环 | 18 |
+| 14 | `examples/accumulate_even_demo.mc` | `for + if + %`，累加 0 到 10 的偶数 | 30 |
+| 15 | `examples/int_array_demo.mc` | 一维 `int` 数组声明、写入、读取和累加 | 15 |
+| 16 | `examples/float_array_demo.mc` | 一维 `float` 数组声明、写入、读取和求和 | 6 |
+| 17 | `examples/char_array_demo.mc` | 一维 `char` 数组和字符字面量 | 77 |
+| 18 | `examples/char_string_demo.mc` | `char`、转义字符、`string` 声明、赋值和字符串比较 | 65 |
+| 19 | `examples/string_array_demo.mc` | 一维 `string` 数组、字符串元素读写和 `== / !=` 比较 | 3 |
+| 20 | `examples/full_feature_demo.mc` | 最新综合示例：`int/float/char/string`、一维数组、循环、嵌套 if、字符串比较、综合表达式 | 69 |
 
 ### 推荐演示命令
 
 ```bash
-./build/microcc examples/ast_complex_demo.mc --run
+./build/microcc examples/full_feature_demo.mc --run
+./build/microcc examples/int_array_demo.mc --run
+./build/microcc examples/char_string_demo.mc --run
+./build/microcc examples/string_array_demo.mc --run
 ./build/microcc examples/accumulate_even_demo.mc --run
-./build/microcc examples/while_demo.mc --run
-./build/microcc examples/scope_demo.mc --run
 ```
 
 注意：`.mc` 文件不是 Bash 脚本，不能用 `bash examples/xxx.mc` 运行。必须通过本项目生成的编译器 `./build/microcc` 运行。
 
 ---
-
 ## 6. 错误测试文件
 
 以下文件用于验证错误处理能力，不应当作为正常程序运行：
@@ -296,7 +316,7 @@ bash scripts/run_tests.sh
 正常输出：
 
 ```text
-Test summary: 25 passed, 0 failed
+Test summary: 36 passed, 0 failed
 ```
 
 ### 10.5 生成 Web 前端数据
@@ -483,7 +503,7 @@ python3 -m http.server 8080
 确认：
 
 ```text
-Test summary: 25 passed, 0 failed
+Test summary: 36 passed, 0 failed
 ```
 
 并使用浏览器打开：
